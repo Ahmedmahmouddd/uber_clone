@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "235748238715",
+    "firebase_url": "https://trippo-75055-default-rtdb.firebaseio.com",
+    "project_id": "trippo-75055",
+    "storage_bucket": "trippo-75055.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:235748238715:android:d508b979096cbd8eec09de",
+        "android_client_info": {
+          "package_name": "com.example.uber_clone"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDefdQ-dfIQ9Xz4ty7E5RQYv-FlXMLks5Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
