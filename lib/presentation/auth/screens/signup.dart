@@ -29,16 +29,16 @@ class _SignUpState extends State<SignUp> {
   bool passwordVisible = true;
   bool confirmPasswordVisible = true;
 
-@override
-void dispose() {
-  nameController.dispose();
-  phoneController.dispose();
-  emailController.dispose();
-  addressController.dispose();
-  passwordController.dispose();
-  confirmPasswordController.dispose();
-  super.dispose(); 
-}
+  @override
+  void dispose() {
+    nameController.dispose();
+    phoneController.dispose();
+    emailController.dispose();
+    addressController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -223,11 +223,11 @@ void dispose() {
                                       onPressed: () {
                                         if (signupKey.currentState!.validate()) {
                                           BlocProvider.of<SignUpCubit>(context).signUp(
-                                              email: emailController.text,
-                                              password: passwordController.text,
-                                              userName: nameController.text,
-                                              address: addressController.text,
-                                              phone: phoneController.text);
+                                              email: emailController.text.trim(),
+                                              password: passwordController.text.trim(),
+                                              userName: nameController.text.trim(),
+                                              address: addressController.text.trim(),
+                                              phone: phoneController.text.trim());
                                         }
                                       },
                                     );

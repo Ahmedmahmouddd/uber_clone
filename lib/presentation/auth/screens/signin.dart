@@ -139,8 +139,8 @@ class _SignInState extends State<SignIn> {
                                     onPressed: () {
                                       if (signinkey.currentState!.validate()) {
                                         BlocProvider.of<SignInCubit>(context).signIn(
-                                          email: emailController.text,
-                                          password: passwordController.text,
+                                          email: emailController.text.trim(),
+                                          password: passwordController.text.trim(),
                                         );
                                       }
                                     },

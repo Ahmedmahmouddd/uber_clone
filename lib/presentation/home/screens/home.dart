@@ -4,9 +4,14 @@ import 'package:geocoder2/geocoder2.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:uber_clone/common/constants/constants.dart';
 import 'package:dio/dio.dart';
+import 'package:location/location.dart' as loc;
+import 'package:uber_clone/common/info_handler/app_info.dart';
 import 'package:uber_clone/presentation/home/models/directions_model.dart';
+import 'package:uber_clone/presentation/search/screens/search_places_screen.dart';
+import 'package:uber_clone/presentation/splash/screens/splash.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -17,13 +22,22 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   LatLng? pickLocation;
+  loc.Location location = loc.Location();
   String? address;
   GoogleMapController? newgoogleMapController;
   final Completer<GoogleMapController> googleMapController = Completer<GoogleMapController>();
   static const CameraPosition kGooglePlex = CameraPosition(target: LatLng(30.0444, 31.2357), zoom: 14.4746);
   Position? userCurrentPosition;
+
+  List<LatLng> pLineCoordinatedList = [];
+  Set<Polyline> polylineSet = {};
+  var geolocation = Geolocator();
   final Set<Marker> markerSet = {};
   final Set<Circle> circleSet = {};
+  BitmapDescriptor? activeNearbyIcon;
+
+  String userName = "";
+  String userEmail = "";
 
   @override
   void initState() {
@@ -35,6 +49,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    // bool darkTheme = MediaQuery.of(context).platformBrightness == Brightness.dark;
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: SafeArea(
@@ -71,36 +86,264 @@ class _HomeState extends State<Home> {
                 alignment: Alignment.center,
                 child: Image.asset("assets/images/mappointer.webp", height: 50, width: 50),
               ),
+              //  UI for searching location
               Positioned(
-                  top: 20,
-                  right: 20,
-                  left: 20,
-                  child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(5),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black54,
-                            blurRadius: 16,
-                            spreadRadius: 0.5,
-                            offset: Offset(0.7, 0.7),
-                          ),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Text(
-                          address ?? "set your pickup location",
-                          style: TextStyle(fontSize: 16),
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(20, 50, 20, 20),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(6),
+                        decoration:
+                            BoxDecoration(borderRadius: BorderRadius.circular(10), color: Colors.white),
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8), color: Colors.grey[200]),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.location_on_outlined, color: Colors.blue),
+                                  SizedBox(width: 4),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text("From",
+                                          style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w600)),
+                                      Text(
+                                        Provider.of<AppInfo>(context).userPickUpLocation?.locationName != null
+                                            ? "${(Provider.of<AppInfo>(context).userPickUpLocation?.locationName)!.substring(0, (Provider.of<AppInfo>(context).userPickUpLocation?.locationName)!.length > 36 ? 36 : Provider.of<AppInfo>(context).userPickUpLocation?.locationName!.length)}..."
+                                            : "Choose Location",
+                                        style:
+                                            TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w500),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      )
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ),
+                            // Divider(color: Colors.grey[100], thickness: 1.5, endIndent: 25, indent: 25),
+                            SizedBox(height: 6),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                    context, MaterialPageRoute(builder: (context) => SearchPlacesScreen()));
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8), color: Colors.grey[200]),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.location_on_outlined, color: Colors.blue),
+                                    SizedBox(width: 4),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text("To",
+                                            style:
+                                                TextStyle(color: Colors.blue, fontWeight: FontWeight.w600)),
+                                        Text(
+                                          Provider.of<AppInfo>(context).userDropOffLocation?.locationName !=
+                                                  null
+                                              ? "${(Provider.of<AppInfo>(context).userDropOffLocation?.locationName)!.substring(0, (Provider.of<AppInfo>(context).userPickUpLocation?.locationName)!.length > 36 ? 36 : Provider.of<AppInfo>(context).userPickUpLocation?.locationName!.length)}..."
+                                              : "Where to?",
+                                          style:
+                                              TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w500),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        )
+                                      ],
+                                    )
+                                  ],
+                                ),
+                              ),
+                            )
+                          ],
                         ),
-                      )))
+                      )
+                    ],
+                  ),
+                ),
+              )
+
+              // UI for showing address
+              // Positioned(
+              //     top: 20,
+              //     right: 20,
+              //     left: 20,
+              //     child: Container(
+              //         decoration: BoxDecoration(
+              //           color: Colors.white,
+              //           borderRadius: BorderRadius.circular(5),
+              //           boxShadow: [
+              //             BoxShadow(
+              //               color: Colors.black54,
+              //               blurRadius: 16,
+              //               spreadRadius: 0.5,
+              //               offset: Offset(0.7, 0.7),
+              //             ),
+              //           ],
+              //         ),
+              //         child: Padding(
+              //           padding: const EdgeInsets.all(10.0),
+              //           child: Text(
+              //             Provider.of<AppInfo>(context).userPickUpLocation?.locationName ??
+              //                 "Not getting address",
+              //             style: TextStyle(fontSize: 16),
+              //           ),
+              //         )))
             ],
           ),
         ),
       ),
     );
   }
+
+/* 
+Widget build(BuildContext context) {
+  bool darkTheme = MediaQuery.of(context).platformBrightness == Brightness.dark;
+
+  // Define dark and light map styles
+  final String darkMapStyle = '''
+  [
+    {
+      "elementType": "geometry",
+      "stylers": [
+        {
+          "color": "#212121"
+        }
+      ]
+    },
+    {
+      "elementType": "labels.icon",
+      "stylers": [
+        {
+          "visibility": "off"
+        }
+      ]
+    },
+    {
+      "elementType": "labels.text.fill",
+      "stylers": [
+        {
+          "color": "#757575"
+        }
+      ]
+    },
+    {
+      "elementType": "labels.text.stroke",
+      "stylers": [
+        {
+          "color": "#212121"
+        }
+      ]
+    },
+    {
+      "featureType": "road",
+      "elementType": "geometry",
+      "stylers": [
+        {
+          "color": "#212121"
+        }
+      ]
+    },
+    {
+      "featureType": "water",
+      "elementType": "geometry",
+      "stylers": [
+        {
+          "color": "#000000"
+        }
+      ]
+    }
+  ]
+  ''';
+
+  final String lightMapStyle = '''
+  // Add your light map style here
+  ''';
+
+  return GestureDetector(
+    onTap: () => FocusScope.of(context).unfocus(),
+    child: SafeArea(
+      child: Scaffold(
+        body: Stack(
+          children: [
+            GoogleMap(
+              mapType: MapType.normal,
+              myLocationEnabled: true,
+              myLocationButtonEnabled: true,
+              zoomGesturesEnabled: true,
+              zoomControlsEnabled: true,
+              initialCameraPosition: kGooglePlex,
+              markers: markerSet,
+              circles: circleSet,
+              onMapCreated: (GoogleMapController controller) {
+                googleMapController.complete(controller);
+                newgoogleMapController = controller;
+                setState(() {
+                  // Apply dark or light theme
+                  controller.setMapStyle(darkTheme ? darkMapStyle : lightMapStyle);
+                });
+                locateUserPosition();
+              },
+              onCameraMove: (CameraPosition? position) {
+                if (pickLocation != position!.target) {
+                  setState(() {
+                    pickLocation = position.target;
+                  });
+                }
+              },
+              onCameraIdle: () {
+                getAddressFromLatLng();
+              },
+            ),
+            Align(
+              alignment: Alignment.center,
+              child: Image.asset("assets/images/mappointer.webp", height: 50, width: 50),
+            ),
+            Positioned(
+              top: 20,
+              right: 20,
+              left: 20,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black54,
+                      blurRadius: 16,
+                      spreadRadius: 0.5,
+                      offset: Offset(0.7, 0.7),
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text(
+                    address ?? "set your pickup location",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+*/
 
   //1
   Future<void> _checkLocationPermission() async {
@@ -148,8 +391,14 @@ class _HomeState extends State<Home> {
     newgoogleMapController!
         .animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: latLngPosition, zoom: 15)));
 
-    final address = await searchAddressForGeographicCoordinates(position);
-    log("Address: $address");
+    final humanReadableAddress = await searchAddressForGeographicCoordinates(position);
+    log("Address: $humanReadableAddress");
+
+    userName = userModelCurrentInfo!.name!;
+    userEmail = userModelCurrentInfo!.email!;
+
+    // initializeGeoFireListener();
+    // readTripsKeyForOnlineUser(context);
   }
 
   //4
@@ -173,7 +422,9 @@ class _HomeState extends State<Home> {
   }
 
   //5
-  Future<String> searchAddressForGeographicCoordinates(Position position) async {
+  Future<String> searchAddressForGeographicCoordinates(
+    Position position,
+  ) async {
     final url =
         "https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.latitude},${position.longitude}&key=${Constants.mapKey}";
     final response = await receiveRequest(url);
@@ -185,6 +436,7 @@ class _HomeState extends State<Home> {
       userPickupAddress.locationLongitude = position.longitude;
       userPickupAddress.locationName = humanReadableAddress;
 
+      // Provider.of<AppInfo>(context, listen: false).updatePickUPLocationAddress(userPickupAddress);
       return humanReadableAddress;
     } else {
       log("No results found.");
@@ -203,8 +455,16 @@ class _HomeState extends State<Home> {
         googleMapApiKey: "AIzaSyB376ByXGn6J52_bkDrC0GdIWxG2piZaUY",
       );
 
-      setState(() => address = data.address);
-      log("Address: $address");
+      setState(() {
+        DirectionsModel userPickupAddress = DirectionsModel();
+        userPickupAddress.locationLatitude = pickLocation!.latitude;
+        userPickupAddress.locationLongitude = pickLocation!.longitude;
+        userPickupAddress.locationName = data.address;
+
+        Provider.of<AppInfo>(context, listen: false).updatePickUPLocationAddress(userPickupAddress);
+        // address = data.address;
+      });
+      log("Address: ${data.address}");
     } catch (e) {
       log("Error: $e");
     }
