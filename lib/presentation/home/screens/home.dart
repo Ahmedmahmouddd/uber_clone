@@ -28,7 +28,7 @@ class _HomeState extends State<Home> {
   final Completer<GoogleMapController> googleMapController = Completer<GoogleMapController>();
   static const CameraPosition kGooglePlex = CameraPosition(target: LatLng(30.0444, 31.2357), zoom: 14.4746);
   Position? userCurrentPosition;
-
+  bool openNavigationDrawer = true;
   List<LatLng> pLineCoordinatedList = [];
   Set<Polyline> polylineSet = {};
   var geolocation = Geolocator();
@@ -132,9 +132,14 @@ class _HomeState extends State<Home> {
                             // Divider(color: Colors.grey[100], thickness: 1.5, endIndent: 25, indent: 25),
                             SizedBox(height: 6),
                             GestureDetector(
-                              onTap: () {
-                                Navigator.push(
+                              onTap: () async {
+                                var responseFromSearchScreen = await Navigator.push(
                                     context, MaterialPageRoute(builder: (context) => SearchPlacesScreen()));
+                                if (responseFromSearchScreen == "obtainedDropOff") {
+                                  setState(() {
+                                    openNavigationDrawer = false;
+                                  });
+                                }
                               },
                               child: Container(
                                 padding: EdgeInsets.symmetric(horizontal: 6, vertical: 3),
@@ -153,8 +158,8 @@ class _HomeState extends State<Home> {
                                         Text(
                                           Provider.of<AppInfo>(context).userDropOffLocation?.locationName !=
                                                   null
-                                              ? "${(Provider.of<AppInfo>(context).userDropOffLocation?.locationName)!.substring(0, (Provider.of<AppInfo>(context).userPickUpLocation?.locationName)!.length > 36 ? 36 : Provider.of<AppInfo>(context).userPickUpLocation?.locationName!.length)}..."
-                                              : "Where to?",
+                                              ? "${(Provider.of<AppInfo>(context).userDropOffLocation?.locationName)!.substring(0, (Provider.of<AppInfo>(context).userDropOffLocation?.locationName)!.length > 36 ? 36 : Provider.of<AppInfo>(context).userDropOffLocation?.locationName!.length)}..."
+                                              : "Choose Location",
                                           style:
                                               TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w500),
                                           maxLines: 1,

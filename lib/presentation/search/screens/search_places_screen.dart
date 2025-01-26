@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:uber_clone/common/constants/constants.dart';
 import 'package:uber_clone/common/theme_provider/app_colors.dart';
 import 'package:uber_clone/common/theme_provider/app_styles.dart';
+import 'package:uber_clone/dio/dio.dart';
 import 'package:uber_clone/presentation/search/models/predicted_places_model.dart';
+import 'package:uber_clone/presentation/search/widgets/place_prediction_tile.dart';
 
 class SearchPlacesScreen extends StatefulWidget {
   const SearchPlacesScreen({super.key});
@@ -12,7 +15,24 @@ class SearchPlacesScreen extends StatefulWidget {
 
 class _SearchPlacesScreenState extends State<SearchPlacesScreen> {
   List<PredictedPlace> predictedPlacesList = [];
-  findPlaceAutoCompleteSearch(String inputText) async {}
+  findPlaceAutoCompleteSearch(String inputText) async {
+    if (inputText.length > 1) {
+      String urlAutocompleteSearch =
+          "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$inputText&key=${Constants.mapKey}&components=country:EG";
+
+      var responseAutoCompleteSearch = await receiveRequest(urlAutocompleteSearch);
+
+      if (responseAutoCompleteSearch["status"] == "OK") {
+        var placePredictions = responseAutoCompleteSearch["predictions"];
+        var placePredictionsList =
+            (placePredictions as List).map((jsonData) => PredictedPlace.fromJson(jsonData)).toList();
+
+        setState(() {
+          predictedPlacesList = placePredictionsList;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,18 +101,20 @@ class _SearchPlacesScreenState extends State<SearchPlacesScreen> {
                   ),
                 ),
                 predictedPlacesList.isNotEmpty
-                    ? ListView.separated(
-                        itemBuilder: (context, index) => Text("data"),
-                        itemCount: predictedPlacesList.length,
-                        separatorBuilder: (context, index) => Divider())
+                    ? Expanded(
+                        child: ListView.separated(
+                            itemBuilder: (context, index) =>
+                                PlacePredictionTile(predictedPlace: predictedPlacesList[index]),
+                            itemCount: predictedPlacesList.length,
+                            separatorBuilder: (context, index) => Divider()),
+                      )
                     : Text(
-                      "???????",
-                      style: TextStyle(color: Colors.white, fontSize: 40),
-                    )
+                        "???????",
+                        style: TextStyle(color: Colors.white, fontSize: 40),
+                      )
               ],
             ),
           ),
         ));
   }
 }
-
