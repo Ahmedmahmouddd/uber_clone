@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:uber_clone/common/theme_provider/app_colors.dart';
 
 abstract class AppStyles {
-  static TextStyle pageHeader25(bool darkTheme) {
+  static TextStyle styleBold24(bool darkTheme) {
     return TextStyle(
-      fontSize: 25,
+      fontSize: 24,
       fontWeight: FontWeight.bold,
-      color: darkTheme ? DarkColors.primary : LightColors.background,
+      color: DarkColors.primary,
+      fontFamily: 'Poppins',
     );
   }
 
@@ -14,8 +15,35 @@ abstract class AppStyles {
     return TextStyle(
       fontSize: 16,
       fontWeight: FontWeight.w600,
-      color: darkTheme ? DarkColors.accent : LightColors.accent,
+      fontFamily: 'Poppins',
+      color: darkTheme ? DarkColors.textPrimary : LightColors.textPrimary,
     );
+  }
+
+  static TextStyle styleError12Red() {
+    return TextStyle(
+      color: Colors.red,
+      fontFamily: 'Poppins',
+      fontSize: 12,
+      fontWeight: FontWeight.w600,
+    );
+  }
+
+  static TextStyle style18Bold(bool darkTheme) {
+    return TextStyle(
+      fontSize: 18,
+      color: darkTheme ? DarkColors.textPrimary : LightColors.white,
+      fontFamily: 'Poppins',
+      fontWeight: FontWeight.bold,
+    );
+  }
+
+  static TextStyle styleBold16(bool darkTheme) {
+    return TextStyle(
+        color: darkTheme ? DarkColors.textSecondary : LightColors.textSecondary,
+        fontWeight: FontWeight.bold,
+        fontFamily: 'Poppins',
+        fontSize: 16);
   }
 }
 

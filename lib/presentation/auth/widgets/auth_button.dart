@@ -19,34 +19,25 @@ class AuthButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 200, // Set the fixed width of the button
-      height: 50,
-      child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: darkTheme ? DarkColors.primary : LightColors.accent,
-            overlayColor: darkTheme ? DarkColors.primary : LightColors.accent,
-            shadowColor: Colors.transparent,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 12),
-          ),
-          onPressed: onPressed,
-          child: loading
-              ? SizedBox(
-                  width: 25,
-                  height: 50,
-                  child: CircularProgressIndicator(
-                    color: darkTheme ? DarkColors.accent : LightColors.background,
-                  ),
-                )
-              : SizedBox(
-                  child: Text(
-                    text,
-                    style: AppStyles.styleSemiBold16(darkTheme).copyWith(
-                        color: darkTheme ? DarkColors.accent : LightColors.background,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18),
-                  ),
-                )),
-    );
+        width: 200,
+        height: 50,
+        child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: LightColors.primary,
+              overlayColor: LightColors.primary,
+              shadowColor: Colors.transparent,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 12),
+            ),
+            onPressed: onPressed,
+            child: loading
+                ? SizedBox(
+                    width: 25,
+                    height: 50,
+                    child: CircularProgressIndicator(
+                      color: darkTheme ? DarkColors.accent : LightColors.background,
+                    ),
+                  )
+                : SizedBox(child: Text(text, style: AppStyles.style18Bold(darkTheme)))));
   }
 }

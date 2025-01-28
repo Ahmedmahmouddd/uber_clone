@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:uber_clone/common/info_handler/app_info.dart';
 import 'package:uber_clone/common/theme_provider/theme_provider.dart';
 import 'package:uber_clone/firebase_options.dart';
-
 import 'package:uber_clone/presentation/splash/screens/splash.dart';
 
 void main() async {
@@ -22,8 +21,8 @@ class TaxiApp extends StatelessWidget {
         create: (context) => AppInfo(),
         child: MaterialApp(
           themeMode: ThemeMode.system,
-          theme: MyThemes.lightTheme,
-          darkTheme: MyThemes.lightTheme,
+          theme: lightTheme,
+          darkTheme: darkTheme,
           debugShowCheckedModeBanner: false,
           home: AuthGate(),
         ));

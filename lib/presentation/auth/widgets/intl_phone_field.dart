@@ -21,17 +21,17 @@ class IntelPhoneField extends StatelessWidget {
         initialValue: "+20",
         controller: phoneController,
         dropdownTextStyle: AppStyles.styleSemiBold16(darkTheme),
-        dropdownIcon: Icon(Icons.arrow_drop_down, color: darkTheme ? DarkColors.accent : LightColors.accent),
+        dropdownIcon: Icon(Icons.arrow_drop_down,
+            color: darkTheme ? DarkColors.textSecondary : LightColors.textSecondary),
         showCountryFlag: false,
         style: AppStyles.styleSemiBold16(darkTheme),
         cursorWidth: 3,
-        cursorColor: darkTheme ? DarkColors.accent : LightColors.accent,
+        cursorColor: darkTheme ? DarkColors.textSecondary : LightColors.textSecondary,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         decoration: InputDecoration(
           filled: true,
           hintStyle: AppStyles.styleSemiBold16(darkTheme),
-          fillColor:
-              darkTheme ? const Color.fromARGB(136, 250, 251, 255) : const Color.fromARGB(216, 250, 251, 255),
+          fillColor: darkTheme ? DarkColors.accent : LightColors.accent,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
         ));
   }

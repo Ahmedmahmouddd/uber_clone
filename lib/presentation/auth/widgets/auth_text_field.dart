@@ -27,20 +27,14 @@ class AuthTextFormField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Theme(
       data: Theme.of(context).copyWith(
-        inputDecorationTheme: InputDecorationTheme(
-          errorStyle: TextStyle(
-            color: darkTheme ? const Color.fromARGB(180, 250, 251, 255) : LightColors.accent,
-            fontSize: 12, // Custom font size
-            fontWeight: FontWeight.w600, // Custom weight
-          ),
-        ),
+        inputDecorationTheme: InputDecorationTheme(errorStyle: AppStyles.styleError12Red()),
       ),
       child: TextFormField(
         obscuringCharacter: "*",
         obscureText: obsecure!,
         style: AppStyles.styleSemiBold16(darkTheme),
         cursorWidth: 3,
-        cursorColor: darkTheme ? DarkColors.accent : LightColors.accent,
+        cursorColor: darkTheme ? DarkColors.textSecondary : LightColors.textSecondary,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         inputFormatters: [LengthLimitingTextInputFormatter(50)],
         decoration: InputDecoration(
@@ -48,9 +42,8 @@ class AuthTextFormField extends StatelessWidget {
           hintText: hint,
           hintStyle: AppStyles.styleSemiBold16(darkTheme),
           suffixIcon: suffixIcon,
-          fillColor:
-              darkTheme ? const Color.fromARGB(136, 250, 251, 255) : const Color.fromARGB(216, 250, 251, 255),
-          prefixIcon: Icon(icon, color: darkTheme ? DarkColors.accent : LightColors.accent),
+          fillColor: darkTheme ? DarkColors.accent : LightColors.accent,
+          prefixIcon: Icon(icon, color: darkTheme ? DarkColors.textSecondary : LightColors.textSecondary),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
         ),
         validator: validator,

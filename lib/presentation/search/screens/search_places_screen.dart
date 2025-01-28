@@ -41,9 +41,9 @@ class _SearchPlacesScreenState extends State<SearchPlacesScreen> {
         onTap: () => FocusScope.of(context).unfocus(),
         child: SafeArea(
           child: Scaffold(
-            backgroundColor: darkTheme ? DarkColors.secondaryBackground : LightColors.background,
+            backgroundColor: darkTheme ? DarkColors.background : LightColors.background,
             appBar: AppBar(
-              backgroundColor: darkTheme ? DarkColors.background : LightColors.secondaryBackground,
+              backgroundColor: darkTheme ? DarkColors.background : LightColors.background,
               leading: IconButton(
                 onPressed: () {
                   Navigator.pop(context);
@@ -60,7 +60,7 @@ class _SearchPlacesScreenState extends State<SearchPlacesScreen> {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: darkTheme ? DarkColors.background : LightColors.secondaryBackground,
+                    color: darkTheme ? DarkColors.background : LightColors.background,
                     borderRadius:
                         BorderRadius.only(bottomLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
                   ),
