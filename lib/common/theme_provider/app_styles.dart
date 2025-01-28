@@ -20,6 +20,15 @@ abstract class AppStyles {
     );
   }
 
+   static TextStyle styleSnackbar() {
+    return TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+      fontFamily: 'Poppins',
+      color: LightColors.background,
+    );
+  }
+
   static TextStyle styleError12Red() {
     return TextStyle(
       color: Colors.red,
@@ -45,6 +54,8 @@ abstract class AppStyles {
         fontFamily: 'Poppins',
         fontSize: 16);
   }
+
+  
 }
 
 // // sacleFactor

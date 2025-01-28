@@ -17,6 +17,7 @@ import 'package:uber_clone/dio/dio.dart';
 import 'package:uber_clone/presentation/home/models/directions_model.dart';
 import 'package:uber_clone/presentation/search/screens/search_places_screen.dart';
 import 'package:uber_clone/presentation/search/widgets/progress_dialog.dart';
+import 'package:uber_clone/presentation/splash/bloc/auth_gate_cubit/auth_gate_cubit.dart';
 import 'package:uber_clone/presentation/splash/screens/splash.dart';
 
 class Home extends StatefulWidget {
@@ -408,8 +409,9 @@ Widget build(BuildContext context) {
     final humanReadableAddress = await searchAddressForGeographicCoordinates(position);
     log("Address: $humanReadableAddress");
 
+    final userModelCurrentInfo = context.read<AuthGateCubit>().userModelCurrentInfo;
     userName = userModelCurrentInfo!.name!;
-    userEmail = userModelCurrentInfo!.email!;
+    userEmail = userModelCurrentInfo.email!;
 
     // initializeGeoFireListener();
     // readTripsKeyForOnlineUser(context);
@@ -551,11 +553,16 @@ Widget build(BuildContext context) {
 
     newgoogleMapController!.animateCamera(CameraUpdate.newLatLngBounds(boundslatlng, 65));
     Marker originMarker = Marker(
-      markerId: MarkerId("OriginID"), infoWindow: InfoWindow(title: originPosition.locationName, snippet: "Origin"),
-      position: originLatlng,icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-    );Marker destinationMarker = Marker(
-      markerId: MarkerId("DestinationID"), infoWindow: InfoWindow(title: destinationPosition.locationName, snippet: "Destination"),
-      position: destinationLatlng,icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+      markerId: MarkerId("OriginID"),
+      infoWindow: InfoWindow(title: originPosition.locationName, snippet: "Origin"),
+      position: originLatlng,
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+    );
+    Marker destinationMarker = Marker(
+      markerId: MarkerId("DestinationID"),
+      infoWindow: InfoWindow(title: destinationPosition.locationName, snippet: "Destination"),
+      position: destinationLatlng,
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
     );
     setState(() {
       markerSet.add(originMarker);

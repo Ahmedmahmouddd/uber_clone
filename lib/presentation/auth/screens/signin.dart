@@ -1,4 +1,3 @@
-import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uber_clone/common/theme_provider/app_colors.dart';
@@ -19,17 +18,17 @@ class SignIn extends StatefulWidget {
 
 class _SignInState extends State<SignIn> {
   static final signinkey = GlobalKey<FormState>();
-  static final emailController = TextEditingController();
-  static final passwordController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
   bool passwordVisible = true;
   bool confirmPasswordVisible = true;
 
-  // @override
-  // void dispose() {
-  //   emailController.dispose();
-  //   passwordController.dispose();
-  //   super.dispose();
-  // }
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,11 +63,7 @@ class _SignInState extends State<SignIn> {
                               icon: Icons.email_rounded,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return "Please enter a name";
-                                } else {
-                                  if (!EmailValidator.validate(value)) {
-                                    return "Please enter a valid email";
-                                  }
+                                  return "Please enter a vaild email";
                                 }
                                 return null;
                               },
@@ -104,12 +99,6 @@ class _SignInState extends State<SignIn> {
                                 if (value == null || value.isEmpty) {
                                   return "Please enter an password";
                                 }
-                                if (value.length < 8) {
-                                  return "Password must be at least 8 characters long";
-                                }
-                                if (value.length > 25) {
-                                  return "Password must be less than 25 characters long";
-                                }
                                 return null;
                               },
                             ),
@@ -118,9 +107,8 @@ class _SignInState extends State<SignIn> {
                               listener: (context, state) {
                                 if (state is SignInSuccess) {
                                   showCustomSnackBar(context, "Sign in successful", darkTheme);
-                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-                                    return const Home();
-                                  }));
+                                  Navigator.pushReplacement(
+                                      context, MaterialPageRoute(builder: (context) => Home()));
                                 } else if (state is SignInFailure) {
                                   showCustomSnackBar(context, state.errMessage, darkTheme);
                                 }

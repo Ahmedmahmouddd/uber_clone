@@ -14,7 +14,6 @@ class SignUpCubit extends Cubit<SignUpState> {
       UserCredential auth =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
 
-      // userModel? userModelCurrentInfo;
       User? currentUser = auth.user;
       if (currentUser != null) {
         Map userMap = {

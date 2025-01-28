@@ -19,26 +19,26 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
-  static final signupKey = GlobalKey<FormState>();
-  static final nameController = TextEditingController();
-  static final phoneController = TextEditingController();
-  static final emailController = TextEditingController();
-  static final addressController = TextEditingController();
-  static final passwordController = TextEditingController();
-  static final confirmPasswordController = TextEditingController();
+  final signupKey = GlobalKey<FormState>();
+  final nameController = TextEditingController();
+  final phoneController = TextEditingController();
+  final emailController = TextEditingController();
+  final addressController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
   bool passwordVisible = true;
   bool confirmPasswordVisible = true;
 
-  // @override
-  // void dispose() {
-  //   nameController.dispose();
-  //   phoneController.dispose();
-  //   emailController.dispose();
-  //   addressController.dispose();
-  //   passwordController.dispose();
-  //   confirmPasswordController.dispose();
-  //   super.dispose();
-  // }
+  @override
+  void dispose() {
+    nameController.dispose();
+    phoneController.dispose();
+    emailController.dispose();
+    addressController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -204,9 +204,8 @@ class _SignUpState extends State<SignUp> {
                               listener: (context, state) {
                                 if (state is SignUpSuccess) {
                                   showCustomSnackBar(context, "Sign up successful", darkTheme);
-                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-                                    return const Home();
-                                  }));
+                                  Navigator.pushReplacement(
+                                      context, MaterialPageRoute(builder: (context) => Home()));
                                 } else if (state is SignUpFailure) {
                                   showCustomSnackBar(context, state.errMessage, darkTheme);
                                 }
@@ -241,11 +240,9 @@ class _SignUpState extends State<SignUp> {
                                       return const SignIn();
                                     }));
                                   },
-                                  child: Text(
-                                    "Sign in",
-                                    style: AppStyles.styleBold16(darkTheme)
-                                        .copyWith(decoration: TextDecoration.underline)
-                                  ),
+                                  child: Text("Sign in",
+                                      style: AppStyles.styleBold16(darkTheme)
+                                          .copyWith(decoration: TextDecoration.underline)),
                                 ),
                               ],
                             ),
