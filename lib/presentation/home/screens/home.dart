@@ -1,7 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
 import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -10,15 +9,15 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as loc;
 import 'package:provider/provider.dart';
-
 import 'package:uber_clone/common/constants/constants.dart';
 import 'package:uber_clone/common/info_handler/app_info.dart';
+import 'package:uber_clone/common/network/dio_client.dart';
+import 'package:uber_clone/common/theme_provider/app_colors.dart';
 import 'package:uber_clone/dio/dio.dart';
 import 'package:uber_clone/presentation/home/models/directions_model.dart';
 import 'package:uber_clone/presentation/search/screens/search_places_screen.dart';
 import 'package:uber_clone/presentation/search/widgets/progress_dialog.dart';
 import 'package:uber_clone/presentation/splash/bloc/auth_gate_cubit/auth_gate_cubit.dart';
-import 'package:uber_clone/presentation/splash/screens/splash.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -42,53 +41,54 @@ class _HomeState extends State<Home> {
   final Set<Marker> markerSet = {};
   final Set<Circle> circleSet = {};
   BitmapDescriptor? activeNearbyIcon;
-
   String userName = "";
   String userEmail = "";
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkLocationPermission();
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkLocationPermission());
   }
 
   @override
   Widget build(BuildContext context) {
-    // bool darkTheme = MediaQuery.of(context).platformBrightness == Brightness.dark;
+    bool darkTheme = MediaQuery.of(context).platformBrightness == Brightness.dark;
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: SafeArea(
         child: Scaffold(
           body: Stack(
             children: [
-              GoogleMap(
-                mapType: MapType.normal,
-                myLocationEnabled: true,
-                myLocationButtonEnabled: true,
-                zoomGesturesEnabled: true,
-                zoomControlsEnabled: true,
-                initialCameraPosition: kGooglePlex,
-                markers: markerSet,
-                circles: circleSet,
-                onMapCreated: (GoogleMapController controller) {
-                  googleMapController.complete(controller);
-                  newgoogleMapController = controller;
-                  setState(() {});
-                  locateUserPosition();
-                },
-                onCameraMove: (CameraPosition? position) {
-                  if (pickLocation != position!.target) {
-                    setState(() {
-                      pickLocation = position.target;
-                    });
-                  }
-                },
-                onCameraIdle: () {
-                  getAddressFromLatLng();
-                },
-              ),
+              userCurrentPosition == null
+                  ? Container(
+                      color: darkTheme ? DarkColors.background : LightColors.background,
+                      child: Center(
+                          child: CircularProgressIndicator(
+                        color: darkTheme ? DarkColors.textSecondary : LightColors.textSecondary,
+                      )))
+                  : GoogleMap(
+                      mapType: MapType.hybrid,
+                      myLocationEnabled: true,
+                      myLocationButtonEnabled: true,
+                      zoomGesturesEnabled: true,
+                      zoomControlsEnabled: true,
+                      initialCameraPosition: kGooglePlex,
+                      markers: markerSet,
+                      circles: circleSet,
+                      onMapCreated: (GoogleMapController controller) {
+                        googleMapController.complete(controller);
+                        newgoogleMapController = controller;
+                        setState(() {});
+                        locateUserPosition();
+                      },
+                      onCameraMove: (CameraPosition? position) {
+                        setState(() => pickLocation = position!.target);
+                      },
+                      onCameraIdle: () {
+                        getAddressFromLatLng();
+                      },
+                    ),
               Align(
                 alignment: Alignment.center,
                 child: Image.asset("assets/images/mappointer.webp", height: 50, width: 50),
@@ -125,7 +125,7 @@ class _HomeState extends State<Home> {
                                       Text(
                                         Provider.of<AppInfo>(context).userPickUpLocation?.locationName != null
                                             ? "${(Provider.of<AppInfo>(context).userPickUpLocation?.locationName)!.substring(0, (Provider.of<AppInfo>(context).userPickUpLocation?.locationName)!.length > 36 ? 36 : Provider.of<AppInfo>(context).userPickUpLocation?.locationName!.length)}..."
-                                            : "Choose Location",
+                                            : "Point screen to your required location",
                                         style:
                                             TextStyle(color: Colors.grey[700], fontWeight: FontWeight.w500),
                                         maxLines: 1,
@@ -136,7 +136,6 @@ class _HomeState extends State<Home> {
                                 ],
                               ),
                             ),
-                            // Divider(color: Colors.grey[100], thickness: 1.5, endIndent: 25, indent: 25),
                             SizedBox(height: 6),
                             GestureDetector(
                               onTap: () async {
@@ -187,33 +186,6 @@ class _HomeState extends State<Home> {
                   ),
                 ),
               )
-
-              // UI for showing address
-              // Positioned(
-              //     top: 20,
-              //     right: 20,
-              //     left: 20,
-              //     child: Container(
-              //         decoration: BoxDecoration(
-              //           color: Colors.white,
-              //           borderRadius: BorderRadius.circular(5),
-              //           boxShadow: [
-              //             BoxShadow(
-              //               color: Colors.black54,
-              //               blurRadius: 16,
-              //               spreadRadius: 0.5,
-              //               offset: Offset(0.7, 0.7),
-              //             ),
-              //           ],
-              //         ),
-              //         child: Padding(
-              //           padding: const EdgeInsets.all(10.0),
-              //           child: Text(
-              //             Provider.of<AppInfo>(context).userPickUpLocation?.locationName ??
-              //                 "Not getting address",
-              //             style: TextStyle(fontSize: 16),
-              //           ),
-              //         )))
             ],
           ),
         ),
@@ -221,246 +193,78 @@ class _HomeState extends State<Home> {
     );
   }
 
-/* 
-Widget build(BuildContext context) {
-  bool darkTheme = MediaQuery.of(context).platformBrightness == Brightness.dark;
-
-  // Define dark and light map styles
-  final String darkMapStyle = '''
-  [
-    {
-      "elementType": "geometry",
-      "stylers": [
-        {
-          "color": "#212121"
-        }
-      ]
-    },
-    {
-      "elementType": "labels.icon",
-      "stylers": [
-        {
-          "visibility": "off"
-        }
-      ]
-    },
-    {
-      "elementType": "labels.text.fill",
-      "stylers": [
-        {
-          "color": "#757575"
-        }
-      ]
-    },
-    {
-      "elementType": "labels.text.stroke",
-      "stylers": [
-        {
-          "color": "#212121"
-        }
-      ]
-    },
-    {
-      "featureType": "road",
-      "elementType": "geometry",
-      "stylers": [
-        {
-          "color": "#212121"
-        }
-      ]
-    },
-    {
-      "featureType": "water",
-      "elementType": "geometry",
-      "stylers": [
-        {
-          "color": "#000000"
-        }
-      ]
-    }
-  ]
-  ''';
-
-  final String lightMapStyle = '''
-  // Add your light map style here
-  ''';
-
-  return GestureDetector(
-    onTap: () => FocusScope.of(context).unfocus(),
-    child: SafeArea(
-      child: Scaffold(
-        body: Stack(
-          children: [
-            GoogleMap(
-              mapType: MapType.normal,
-              myLocationEnabled: true,
-              myLocationButtonEnabled: true,
-              zoomGesturesEnabled: true,
-              zoomControlsEnabled: true,
-              initialCameraPosition: kGooglePlex,
-              markers: markerSet,
-              circles: circleSet,
-              onMapCreated: (GoogleMapController controller) {
-                googleMapController.complete(controller);
-                newgoogleMapController = controller;
-                setState(() {
-                  // Apply dark or light theme
-                  controller.setMapStyle(darkTheme ? darkMapStyle : lightMapStyle);
-                });
-                locateUserPosition();
-              },
-              onCameraMove: (CameraPosition? position) {
-                if (pickLocation != position!.target) {
-                  setState(() {
-                    pickLocation = position.target;
-                  });
-                }
-              },
-              onCameraIdle: () {
-                getAddressFromLatLng();
-              },
-            ),
-            Align(
-              alignment: Alignment.center,
-              child: Image.asset("assets/images/mappointer.webp", height: 50, width: 50),
-            ),
-            Positioned(
-              top: 20,
-              right: 20,
-              left: 20,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(5),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black54,
-                      blurRadius: 16,
-                      spreadRadius: 0.5,
-                      offset: Offset(0.7, 0.7),
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Text(
-                    address ?? "set your pickup location",
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
-
-*/
-
   DirectionDetailsInfo? tripDirectionDetailsInfo;
   //1
   Future<void> _checkLocationPermission() async {
-    final permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) return;
+    LocationPermission permission = await Geolocator.checkPermission();
 
-    if (!await Geolocator.isLocationServiceEnabled()) {
-      if (!await Geolocator.openLocationSettings()) return;
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) return;
     }
 
-    _getCurrentLocation();
+    if (permission == LocationPermission.deniedForever) {
+      log("Location permissions are permanently denied.");
+      return;
+    }
+
+    if (!await Geolocator.isLocationServiceEnabled()) {
+      bool isOpened = await Geolocator.openLocationSettings();
+      if (!isOpened) return;
+    }
+    locateUserPosition();
   }
 
   //2
-  Future<void> _getCurrentLocation() async {
+  void locateUserPosition() async {
     try {
       final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 10),
+        locationSettings: LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 10),
       );
-
       setState(() => userCurrentPosition = position);
 
-      final controller = await googleMapController.future;
-      controller.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(target: LatLng(position.latitude, position.longitude), zoom: 14.5),
-        ),
-      );
+      final latLngPosition = LatLng(position.latitude, position.longitude);
+
+      newgoogleMapController!
+          .animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: latLngPosition, zoom: 15)));
+
+      // final humanReadableAddress = await getAddressNameFromCoordinates(position);
+      // log("Address: $humanReadableAddress");
+
+      final userModelCurrentInfo = context.read<AuthGateCubit>().userModelCurrentInfo;
+      userName = userModelCurrentInfo!.name!;
+      userEmail = userModelCurrentInfo.email!;
     } catch (e) {
-      log("Error fetching location: $e");
+      log("Error getting user's current location: $e");
     }
-  }
-
-  //3
-  void locateUserPosition() async {
-    final position = await Geolocator.getCurrentPosition(
-      locationSettings: LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 10,
-      ),
-    );
-    userCurrentPosition = position;
-
-    final latLngPosition = LatLng(position.latitude, position.longitude);
-    newgoogleMapController!
-        .animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: latLngPosition, zoom: 15)));
-
-    final humanReadableAddress = await searchAddressForGeographicCoordinates(position);
-    log("Address: $humanReadableAddress");
-
-    final userModelCurrentInfo = context.read<AuthGateCubit>().userModelCurrentInfo;
-    userName = userModelCurrentInfo!.name!;
-    userEmail = userModelCurrentInfo.email!;
-
     // initializeGeoFireListener();
     // readTripsKeyForOnlineUser(context);
   }
 
+  //3
+  // Future<String> getAddressNameFromCoordinates(Position position) async {
+  //   final url =
+  //       "https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.latitude},${position.longitude}&key=${Constants.mapKey}";
+
+  //   try {
+  //     final response = await DioClient().get(url);
+  //     String humanReadableAddress;
+
+  //     if (response.data != null && response.data["results"]?.isNotEmpty == true) {
+  //       humanReadableAddress = response.data["results"][0]["formatted_address"];
+
+  //       return humanReadableAddress;
+  //     } else {
+  //       log("(getAddressNameFromCoordinates) => No address found");
+  //       return "";
+  //     }
+  //   } catch (e) {
+  //     log("(getAddressNameFromCoordinates) => Error fetching address: $e");
+  //     return "";
+  //   }
+  // }
+
   //4
-  Future<dynamic> receiveRequest(String url) async {
-    try {
-      final dio = Dio();
-      final response = await dio.get(url);
-
-      if (response.statusCode == 200) {
-        final decodedResponse = response.data;
-        log("API Response: $decodedResponse");
-        return decodedResponse.isNotEmpty ? decodedResponse : throw Exception("Empty response.");
-      }
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 404) {
-        return ('Error 404: Source not found.');
-      } else {
-        return (e.response!.data['message']);
-      }
-    }
-  }
-
-  //5
-  Future<String> searchAddressForGeographicCoordinates(
-    Position position,
-  ) async {
-    final url =
-        "https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.latitude},${position.longitude}&key=${Constants.mapKey}";
-    final response = await receiveRequest(url);
-    String humanReadableAddress = "";
-
-    if (response != null && response["results"]?.isNotEmpty == true) {
-      DirectionsModel userPickupAddress = DirectionsModel();
-      userPickupAddress.locationLatitude = position.latitude;
-      userPickupAddress.locationLongitude = position.longitude;
-      userPickupAddress.locationName = humanReadableAddress;
-
-      // Provider.of<AppInfo>(context, listen: false).updatePickUPLocationAddress(userPickupAddress);
-      return humanReadableAddress;
-    } else {
-      log("No results found.");
-      return "";
-    }
-  }
-
-  //6
   void getAddressFromLatLng() async {
     if (pickLocation == null) return;
 
@@ -468,7 +272,7 @@ Widget build(BuildContext context) {
       final data = await Geocoder2.getDataFromCoordinates(
         latitude: pickLocation!.latitude,
         longitude: pickLocation!.longitude,
-        googleMapApiKey: "AIzaSyB376ByXGn6J52_bkDrC0GdIWxG2piZaUY",
+        googleMapApiKey: Constants.mapKey,
       );
 
       setState(() {
@@ -478,7 +282,6 @@ Widget build(BuildContext context) {
         userPickupAddress.locationName = data.address;
 
         Provider.of<AppInfo>(context, listen: false).updatePickUPLocationAddress(userPickupAddress);
-        // address = data.address;
       });
       log("Address: ${data.address}");
     } catch (e) {
