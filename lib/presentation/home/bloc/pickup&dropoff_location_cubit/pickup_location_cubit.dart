@@ -2,20 +2,20 @@ import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:uber_clone/presentation/home/models/directions_model.dart';
 
-part 'pickup&dropoff_location_state.dart';
+part 'pickup_location_state.dart';
 
 class PickUpAndDropOffLocationCubit extends Cubit<PickUpAndDropOffLocationState> {
-  PickUpAndDropOffLocationCubit() : super(PickUpLocationInitial());
+  PickUpAndDropOffLocationCubit() : super(LocationInitial());
 
-  DirectionsModel? userPickUpLocation;
-  DirectionsModel? userDropOffLocation;
+  LocationModel? userPickUpLocation;
+  LocationModel? userDropOffLocation;
 
-    void updatePickUpLocation(DirectionsModel pickUpLocation) {
+  void updatePickUpLocation(LocationModel pickUpLocation) {
     userPickUpLocation = pickUpLocation;
     emit(PickUpLocationUpdated(pickUpLocation));
   }
 
-  void updateDropOffLocationAddress(DirectionsModel dropOffAddress) {
+  void updateDropOffLocation(LocationModel dropOffAddress) {
     userDropOffLocation = dropOffAddress;
     emit(DropOffLocationUpdated(dropOffAddress));
   }

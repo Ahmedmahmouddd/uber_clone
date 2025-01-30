@@ -1,7 +1,6 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+// ignore_for_file: public_member_api_docs, sort_constructors_first, use_build_context_synchronously
 import 'dart:async';
 import 'dart:developer';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -11,15 +10,14 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as loc;
 import 'package:provider/provider.dart';
 import 'package:uber_clone/common/constants/constants.dart';
-import 'package:uber_clone/common/info_handler/app_info.dart';
-import 'package:uber_clone/common/network/dio_client.dart';
 import 'package:uber_clone/common/theme_provider/app_colors.dart';
-import 'package:uber_clone/common/theme_provider/theme_provider.dart';
 import 'package:uber_clone/dio/dio.dart';
-import 'package:uber_clone/presentation/home/bloc/pickup&dropoff_location_cubit/pickup&dropoff_location_cubit.dart';
+import 'package:uber_clone/presentation/home/bloc/pickup&dropoff_location_cubit/pickup_location_cubit.dart';
+import 'package:uber_clone/presentation/home/models/direction_details_indo.dart';
 import 'package:uber_clone/presentation/home/models/directions_model.dart';
+import 'package:uber_clone/presentation/home/widgets/from_address_container.dart';
+import 'package:uber_clone/presentation/home/widgets/to_address_container.dart';
 import 'package:uber_clone/presentation/search/screens/search_places_screen.dart';
-import 'package:uber_clone/presentation/search/widgets/progress_dialog.dart';
 import 'package:uber_clone/presentation/splash/bloc/auth_gate_cubit/auth_gate_cubit.dart';
 
 class Home extends StatefulWidget {
@@ -53,160 +51,6 @@ class _HomeState extends State<Home> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _checkLocationPermission());
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<PickUpAndDropOffLocationCubit, PickUpAndDropOffLocationState>(
-      builder: (context, state) {
-        bool darkTheme = MediaQuery.of(context).platformBrightness == Brightness.dark;
-        return GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: SafeArea(
-            child: Scaffold(
-              body: Stack(
-                children: [
-                  userCurrentPosition == null
-                      ? Container(
-                          color: darkTheme ? DarkColors.background : LightColors.background,
-                          child: Center(
-                              child: CircularProgressIndicator(
-                            color: darkTheme ? DarkColors.textSecondary : LightColors.textSecondary,
-                          )))
-                      : GoogleMap(
-                          compassEnabled: true,
-                          // onTap: (LatLng location) {
-                          //   setState(() => pickLocation = location);
-                          //   markerSet.add(Marker(markerId: MarkerId("pickUpId"), position: pickLocation!));
-                          // },
-
-                          mapType: MapType.hybrid,
-                          myLocationEnabled: true,
-                          myLocationButtonEnabled: true,
-                          zoomGesturesEnabled: true,
-                          zoomControlsEnabled: true,
-                          initialCameraPosition: kGooglePlex,
-                          markers: markerSet,
-                          circles: circleSet,
-                          onMapCreated: (GoogleMapController controller) {
-                            googleMapController.complete(controller);
-                            newgoogleMapController = controller;
-                            setState(() {});
-                            locateUserPosition();
-                          },
-                          onCameraMove: (CameraPosition? position) {
-                            setState(() => pickLocation = position!.target);
-                          },
-                          onCameraIdle: () {
-                            getAddressFromLatLng();
-                          },
-                        ),
-                  Align(
-                      alignment: Alignment.center,
-                      child: Icon(Icons.location_on, size: 32, color: LightColors.primary)),
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(20, 50, 20, 20),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            padding: EdgeInsets.all(6),
-                            decoration:
-                                BoxDecoration(borderRadius: BorderRadius.circular(10), color: Colors.white),
-                            child: Column(
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8), color: Colors.grey[200]),
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.location_on_outlined, color: Colors.blue),
-                                      SizedBox(width: 4),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text("From",
-                                              style:
-                                                  TextStyle(color: Colors.blue, fontWeight: FontWeight.w600)),
-                                          Text(
-                                            state is PickUpLocationUpdated
-                                                ? "${(state.userPickUpLocation.locationName)!.substring(0, (state.userPickUpLocation.locationName)!.length > 36 ? 36 : state.userPickUpLocation.locationName!.length)}..."
-                                                : "Point screen to your required location",
-                                            style: TextStyle(
-                                                color: Colors.grey[700], fontWeight: FontWeight.w500),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          )
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(height: 6),
-                                GestureDetector(
-                                  onTap: () async {
-                                    var responseFromSearchScreen = await Navigator.push(context,
-                                        MaterialPageRoute(builder: (context) => SearchPlacesScreen()));
-                                    if (responseFromSearchScreen == "obtainedDropOff") {
-                                      setState(() {
-                                        openNavigationDrawer = false;
-                                      });
-                                    }
-
-                                    await drawPolyLineFromOriginToDestination();
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8), color: Colors.grey[200]),
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.location_on_outlined, color: Colors.blue),
-                                        SizedBox(width: 4),
-                                        Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text("To",
-                                                style: TextStyle(
-                                                    color: Colors.blue, fontWeight: FontWeight.w600)),
-                                            Text(
-                                              Provider.of<AppInfo>(context)
-                                                          .userDropOffLocation
-                                                          ?.locationName !=
-                                                      null
-                                                  ? "${(Provider.of<AppInfo>(context).userDropOffLocation?.locationName)!.substring(0, (Provider.of<AppInfo>(context).userDropOffLocation?.locationName)!.length > 36 ? 36 : Provider.of<AppInfo>(context).userDropOffLocation?.locationName!.length)}..."
-                                                  : "Choose Location",
-                                              style: TextStyle(
-                                                  color: Colors.grey[700], fontWeight: FontWeight.w500),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            )
-                                          ],
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  DirectionDetailsInfo? tripDirectionDetailsInfo;
   //1
   Future<void> _checkLocationPermission() async {
     LocationPermission permission = await Geolocator.checkPermission();
@@ -255,29 +99,6 @@ class _HomeState extends State<Home> {
   }
 
   //3
-  // Future<String> getAddressNameFromCoordinates(Position position) async {
-  //   final url =
-  //       "https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.latitude},${position.longitude}&key=${Constants.mapKey}";
-
-  //   try {
-  //     final response = await DioClient().get(url);
-  //     String humanReadableAddress;
-
-  //     if (response.data != null && response.data["results"]?.isNotEmpty == true) {
-  //       humanReadableAddress = response.data["results"][0]["formatted_address"];
-
-  //       return humanReadableAddress;
-  //     } else {
-  //       log("(getAddressNameFromCoordinates) => No address found");
-  //       return "";
-  //     }
-  //   } catch (e) {
-  //     log("(getAddressNameFromCoordinates) => Error fetching address: $e");
-  //     return "";
-  //   }
-  // }
-
-  //4
   void getAddressFromLatLng() async {
     if (pickLocation == null) return;
 
@@ -288,33 +109,128 @@ class _HomeState extends State<Home> {
         googleMapApiKey: Constants.mapKey,
       );
 
-      setState(() {
-        DirectionsModel userPickupAddress = DirectionsModel();
-        userPickupAddress.locationLatitude = pickLocation!.latitude;
-        userPickupAddress.locationLongitude = pickLocation!.longitude;
-        userPickupAddress.locationName = data.address;
+      LocationModel userPickupAddress = LocationModel();
+      userPickupAddress.locationLatitude = pickLocation!.latitude;
+      userPickupAddress.locationLongitude = pickLocation!.longitude;
+      userPickupAddress.locationName = data.address;
+      context.read<PickUpAndDropOffLocationCubit>().updatePickUpLocation(userPickupAddress);
 
-        context.read<PickUpAndDropOffLocationCubit>().updatePickUpLocation(userPickupAddress);
-      });
       log("(getAddressFromLatLng) => Address: ${data.address}");
     } catch (e) {
       log("(getAddressFromLatLng) => Error: $e");
     }
   }
 
+  @override
+  Widget build(BuildContext context) {
+    bool darkTheme = MediaQuery.of(context).platformBrightness == Brightness.dark;
+    return userCurrentPosition == null
+        ? Container(
+            color: darkTheme ? DarkColors.background : LightColors.background,
+            child: Center(
+                child: CircularProgressIndicator(
+              color: darkTheme ? DarkColors.textSecondary : LightColors.textSecondary,
+            )))
+        : GestureDetector(
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: SafeArea(
+              child: Scaffold(
+                body: Stack(
+                  children: [
+                    GoogleMap(
+                      compassEnabled: true,
+                      onTap: (LatLng location) {
+                        setState(() {
+                          pickLocation = location;
+                          getAddressFromLatLng();
+                        });
+                        markerSet.add(Marker(markerId: MarkerId("pickUpId"), position: pickLocation!));
+                      },
+                      mapType: MapType.hybrid,
+                      myLocationEnabled: true,
+                      myLocationButtonEnabled: true,
+                      zoomGesturesEnabled: true,
+                      zoomControlsEnabled: true,
+                      initialCameraPosition: kGooglePlex,
+                      markers: markerSet,
+                      circles: circleSet,
+                      onMapCreated: (GoogleMapController controller) {
+                        googleMapController.complete(controller);
+                        newgoogleMapController = controller;
+                        setState(() {});
+                        locateUserPosition();
+                      },
+                      // onCameraMove: (CameraPosition? position) {
+                      //   setState(() => pickLocation = position!.target);
+                      // },
+                      onCameraIdle: () {
+                        getAddressFromLatLng();
+                      },
+                    ),
+                    Align(
+                        alignment: Alignment.center,
+                        child: Icon(Icons.location_on, size: 32, color: LightColors.primary)),
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(20, 50, 20, 20),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: darkTheme ? DarkColors.background : LightColors.white),
+                              child: Column(
+                                children: [
+                                  FromAddressContainer(darkTheme: darkTheme),
+                                  SizedBox(height: 6),
+                                  GestureDetector(
+                                    onTap: () async {
+                                      var responseFromSearchScreen = await Navigator.push(context,
+                                          MaterialPageRoute(builder: (context) => SearchPlacesScreen()));
+                                      if (responseFromSearchScreen == "obtainedDropOff") {
+                                        setState(() => openNavigationDrawer = false);
+                                      }
+                                      await drawPolyLineFromOriginToDestination();
+                                    },
+                                    child: ToAddressContainer(darkTheme: darkTheme),
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          );
+  }
+
+  DirectionDetailsInfo? tripDirectionDetailsInfo;
   Future<void> drawPolyLineFromOriginToDestination() async {
-    var originPosition = Provider.of<AppInfo>(context, listen: false).userPickUpLocation;
-    var destinationPosition = Provider.of<AppInfo>(context, listen: false).userDropOffLocation;
+    var originPosition = context.read<PickUpAndDropOffLocationCubit>().userPickUpLocation;
+    var destinationPosition = context.read<PickUpAndDropOffLocationCubit>().userDropOffLocation;
+    markerSet.add(Marker(
+        markerId: MarkerId("dropOffId"),
+        position: LatLng(destinationPosition!.locationLatitude!, destinationPosition.locationLongitude!)));
 
     var originLatlng = LatLng(originPosition!.locationLatitude!, originPosition.locationLongitude!);
     var destinationLatlng =
-        LatLng(destinationPosition!.locationLatitude!, destinationPosition.locationLongitude!);
+        LatLng(destinationPosition.locationLatitude!, destinationPosition.locationLongitude!);
 
-    showDialog(
-        context: context,
-        builder: (context) => ProgressDialog(
-              message: "Please wait...",
-            ));
+    // showDialog(
+    //     context: context,
+    //     builder: (context) => ProgressDialog(
+    //           message: "Please wait...",
+    //           darkTheme: sss,
+    //         ));
     var directionDetailsInfo =
         await obtainOriginalToDistinationDirectionDetails(originLatlng, destinationLatlng);
     setState(() {
@@ -327,9 +243,9 @@ class _HomeState extends State<Home> {
 
     pLineCoordinatedList.clear();
     if (decodePolyLinePointsResultList.isNotEmpty) {
-      decodePolyLinePointsResultList.forEach((PointLatLng pointLatLng) {
+      for (var pointLatLng in decodePolyLinePointsResultList) {
         pLineCoordinatedList.add(LatLng(pointLatLng.latitude, pointLatLng.longitude));
-      });
+      }
     }
     polylineSet.clear();
     setState(() {
@@ -368,12 +284,12 @@ class _HomeState extends State<Home> {
     }
 
     newgoogleMapController!.animateCamera(CameraUpdate.newLatLngBounds(boundslatlng, 65));
-    Marker originMarker = Marker(
-      markerId: MarkerId("OriginID"),
-      infoWindow: InfoWindow(title: originPosition.locationName, snippet: "Origin"),
-      position: originLatlng,
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-    );
+    // Marker originMarker = Marker(
+    //   markerId: MarkerId("OriginID"),
+    //   infoWindow: InfoWindow(title: originPosition.locationName, snippet: "Origin"),
+    //   position: originLatlng,
+    //   icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+    // );
     Marker destinationMarker = Marker(
       markerId: MarkerId("DestinationID"),
       infoWindow: InfoWindow(title: destinationPosition.locationName, snippet: "Destination"),
@@ -381,38 +297,23 @@ class _HomeState extends State<Home> {
       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
     );
     setState(() {
-      markerSet.add(originMarker);
+      // markerSet.add(originMarker);
       markerSet.add(destinationMarker);
     });
   }
-}
 
-Future<DirectionDetailsInfo> obtainOriginalToDistinationDirectionDetails(
-    LatLng originPosition, LatLng destinationPosition) async {
-  String urlOriginToDistinationDirectionDetails =
-      "https://maps.googleapis.com/maps/api/directions/json?origin=${originPosition.latitude},${originPosition.longitude}&destination=${destinationPosition.latitude},${destinationPosition.longitude}&key=${Constants.mapKey}";
-  var responseDirectionAPI = await receiveRequest(urlOriginToDistinationDirectionDetails);
-  DirectionDetailsInfo directionDetailsInfo = DirectionDetailsInfo();
-  directionDetailsInfo.ePoints = responseDirectionAPI["routes"][0]["overview_polyline"]["points"];
-  directionDetailsInfo.distanceText = responseDirectionAPI["routes"][0]["legs"][0]["distance"]["text"];
-  directionDetailsInfo.distanceValue = responseDirectionAPI["routes"][0]["legs"][0]["distance"]["value"];
-  directionDetailsInfo.durationText = responseDirectionAPI["routes"][0]["legs"][0]["duration"]["text"];
-  directionDetailsInfo.durationValue = responseDirectionAPI["routes"][0]["legs"][0]["duration"]["value"];
+  Future<DirectionDetailsInfo> obtainOriginalToDistinationDirectionDetails(
+      LatLng originPosition, LatLng destinationPosition) async {
+    String urlOriginToDistinationDirectionDetails =
+        "https://maps.googleapis.com/maps/api/directions/json?origin=${originPosition.latitude},${originPosition.longitude}&destination=${destinationPosition.latitude},${destinationPosition.longitude}&key=${Constants.mapKey}";
+    var responseDirectionAPI = await receiveRequest(urlOriginToDistinationDirectionDetails);
+    DirectionDetailsInfo directionDetailsInfo = DirectionDetailsInfo();
+    directionDetailsInfo.ePoints = responseDirectionAPI["routes"][0]["overview_polyline"]["points"];
+    directionDetailsInfo.distanceText = responseDirectionAPI["routes"][0]["legs"][0]["distance"]["text"];
+    directionDetailsInfo.distanceValue = responseDirectionAPI["routes"][0]["legs"][0]["distance"]["value"];
+    directionDetailsInfo.durationText = responseDirectionAPI["routes"][0]["legs"][0]["duration"]["text"];
+    directionDetailsInfo.durationValue = responseDirectionAPI["routes"][0]["legs"][0]["duration"]["value"];
 
-  return directionDetailsInfo;
-}
-
-class DirectionDetailsInfo {
-  int? distanceValue;
-  int? durationValue;
-  String? distanceText;
-  String? durationText;
-  String? ePoints;
-  DirectionDetailsInfo({
-    this.distanceValue,
-    this.durationValue,
-    this.distanceText,
-    this.durationText,
-    this.ePoints,
-  });
+    return directionDetailsInfo;
+  }
 }

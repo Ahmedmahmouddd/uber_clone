@@ -19,6 +19,14 @@ abstract class AppStyles {
       color: darkTheme ? DarkColors.textPrimary : LightColors.textPrimary,
     );
   }
+     static TextStyle styleReverseSemiBold16(bool darkTheme) {
+    return TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+      fontFamily: 'Poppins',
+      color: darkTheme ? DarkColors.accent : LightColors.accent,
+    );
+  }
 
    static TextStyle styleSnackbar() {
     return TextStyle(
@@ -55,6 +63,13 @@ abstract class AppStyles {
         fontSize: 16);
   }
 
+  static TextStyle styleSemiBold12(bool darkTheme) {
+    return TextStyle(
+        color: darkTheme ? DarkColors.textPrimary : LightColors.textPrimary,
+        fontWeight: FontWeight.bold,
+        fontFamily: 'Poppins',
+        fontSize: 12);
+  }
   
 }
 

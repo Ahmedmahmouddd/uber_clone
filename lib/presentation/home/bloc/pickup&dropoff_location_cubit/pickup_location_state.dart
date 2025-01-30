@@ -1,12 +1,12 @@
-part of 'pickup&dropoff_location_cubit.dart';
+part of 'pickup_location_cubit.dart';
 
 @immutable
 sealed class PickUpAndDropOffLocationState {}
 
-final class PickUpLocationInitial extends PickUpAndDropOffLocationState {}
+final class LocationInitial extends PickUpAndDropOffLocationState {}
 
 final class PickUpLocationUpdated extends PickUpAndDropOffLocationState {
-  final DirectionsModel userPickUpLocation;
+  final LocationModel userPickUpLocation;
 
   PickUpLocationUpdated(this.userPickUpLocation);
 }
@@ -14,7 +14,7 @@ final class PickUpLocationUpdated extends PickUpAndDropOffLocationState {
 final class DropOffLocationInitial extends PickUpAndDropOffLocationState {}
 
 class DropOffLocationUpdated extends PickUpAndDropOffLocationState {
-  final DirectionsModel userDropOffLocation;
+  final LocationModel userDropOffLocation;
 
   DropOffLocationUpdated(this.userDropOffLocation);
 }

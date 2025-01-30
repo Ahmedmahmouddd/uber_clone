@@ -1,10 +1,10 @@
-class DirectionsModel {
+class LocationModel {
   String? humanReadableAddress;
   String? locationName;
   String? locationID;
   double? locationLatitude;
   double? locationLongitude;
-  DirectionsModel({
+  LocationModel({
     this.humanReadableAddress,
     this.locationName,
     this.locationID,

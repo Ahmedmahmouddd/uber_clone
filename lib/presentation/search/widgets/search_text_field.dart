@@ -3,18 +3,17 @@ import 'package:flutter/services.dart';
 import 'package:uber_clone/common/theme_provider/app_colors.dart';
 import 'package:uber_clone/common/theme_provider/app_styles.dart';
 
-class AuthTextFormField extends StatelessWidget {
-  const AuthTextFormField({
-    super.key,
-    required this.darkTheme,
-     this.nameController,
-    required this.hint,
-    required this.icon,
-    this.validator,
-    this.suffixIcon,
-    this.obsecure = false,
-    this.onChanged
-  });
+class SearchTextField extends StatelessWidget {
+  const SearchTextField(
+      {super.key,
+      required this.darkTheme,
+      this.nameController,
+      required this.hint,
+      required this.icon,
+      this.validator,
+      this.suffixIcon,
+      this.obsecure = false,
+      this.onChanged});
 
   final bool darkTheme;
   final IconButton? suffixIcon;
@@ -45,8 +44,8 @@ class AuthTextFormField extends StatelessWidget {
           hintText: hint,
           hintStyle: AppStyles.styleSemiBold16(darkTheme),
           suffixIcon: suffixIcon,
-          fillColor: darkTheme ? DarkColors.accent : LightColors.accent,
-          prefixIcon: Icon(icon, color: darkTheme ? DarkColors.textSecondary : LightColors.textSecondary),
+          fillColor: darkTheme ? DarkColors.background : LightColors.background,
+          prefixIcon: Icon(icon, color: darkTheme ? DarkColors.textPrimary : LightColors.textPrimary),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
         ),
         validator: validator,
