@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uber_clone/common/theme_provider/app_colors.dart';
-import 'package:uber_clone/presentation/home/bloc/pickup&dropoff_location_cubit/pickup_location_cubit.dart';
+import 'package:uber_clone/presentation/home/bloc/drop_off_cubit/drop_off_cubit.dart';
 
 class ToAddressContainer extends StatelessWidget {
   const ToAddressContainer({
@@ -26,7 +26,7 @@ class ToAddressContainer extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("To", style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w600)),
-                BlocBuilder<PickUpAndDropOffLocationCubit, PickUpAndDropOffLocationState>(
+                BlocBuilder<DropOffLocationCubit, DropOffLocationState>(
                   builder: (context, state) {
                     return Text(
                       state is DropOffLocationUpdated

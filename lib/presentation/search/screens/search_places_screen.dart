@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:uber_clone/common/constants/constants.dart';
 import 'package:uber_clone/common/network/dio_client.dart';
@@ -41,7 +42,7 @@ class _SearchPlacesScreenState extends State<SearchPlacesScreen> {
         }
       } catch (e) {
         setState(() => predictedPlacesList = []);
-        debugPrint("(findPlaceAutoCompleteSearch) => Error fetching places: $e");
+        log("(findPlaceAutoCompleteSearch) => Error fetching places: $e");
       }
     });
   }

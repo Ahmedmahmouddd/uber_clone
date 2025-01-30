@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:uber_clone/common/info_handler/app_info.dart';
 import 'package:uber_clone/common/theme_provider/theme_provider.dart';
 import 'package:uber_clone/firebase_options.dart';
+import 'package:uber_clone/presentation/home/bloc/drop_off_cubit/drop_off_cubit.dart';
 import 'package:uber_clone/presentation/home/bloc/pickup&dropoff_location_cubit/pickup_location_cubit.dart';
 import 'package:uber_clone/presentation/splash/screens/splash.dart';
 
@@ -21,7 +22,8 @@ class TaxiApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => PickUpAndDropOffLocationCubit()),
+        BlocProvider(create: (context) => PickUpLocationCubit()),
+        BlocProvider(create: (context) => DropOffLocationCubit()),
       ],
       child: ChangeNotifierProvider(
           create: (context) => AppInfo(),

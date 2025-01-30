@@ -26,7 +26,7 @@ class FromAddressContainer extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("From", style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w600)),
-                BlocBuilder<PickUpAndDropOffLocationCubit, PickUpAndDropOffLocationState>(
+                BlocBuilder<PickUpLocationCubit, PickUpAndDropOffLocationState>(
                   builder: (context, state) {
                     return Text(
                       state is PickUpLocationUpdated

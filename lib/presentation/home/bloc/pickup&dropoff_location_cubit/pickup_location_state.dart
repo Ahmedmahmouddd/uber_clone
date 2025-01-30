@@ -13,8 +13,4 @@ final class PickUpLocationUpdated extends PickUpAndDropOffLocationState {
 
 final class DropOffLocationInitial extends PickUpAndDropOffLocationState {}
 
-class DropOffLocationUpdated extends PickUpAndDropOffLocationState {
-  final LocationModel userDropOffLocation;
 
-  DropOffLocationUpdated(this.userDropOffLocation);
-}

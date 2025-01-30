@@ -10,14 +10,16 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as loc;
 import 'package:provider/provider.dart';
 import 'package:uber_clone/common/constants/constants.dart';
+import 'package:uber_clone/common/network/dio_client.dart';
 import 'package:uber_clone/common/theme_provider/app_colors.dart';
-import 'package:uber_clone/dio/dio.dart';
+import 'package:uber_clone/presentation/home/bloc/drop_off_cubit/drop_off_cubit.dart';
 import 'package:uber_clone/presentation/home/bloc/pickup&dropoff_location_cubit/pickup_location_cubit.dart';
 import 'package:uber_clone/presentation/home/models/direction_details_indo.dart';
 import 'package:uber_clone/presentation/home/models/directions_model.dart';
 import 'package:uber_clone/presentation/home/widgets/from_address_container.dart';
 import 'package:uber_clone/presentation/home/widgets/to_address_container.dart';
 import 'package:uber_clone/presentation/search/screens/search_places_screen.dart';
+import 'package:uber_clone/presentation/search/widgets/progress_dialog.dart';
 import 'package:uber_clone/presentation/splash/bloc/auth_gate_cubit/auth_gate_cubit.dart';
 
 class Home extends StatefulWidget {
@@ -113,7 +115,7 @@ class _HomeState extends State<Home> {
       userPickupAddress.locationLatitude = pickLocation!.latitude;
       userPickupAddress.locationLongitude = pickLocation!.longitude;
       userPickupAddress.locationName = data.address;
-      context.read<PickUpAndDropOffLocationCubit>().updatePickUpLocation(userPickupAddress);
+      context.read<PickUpLocationCubit>().updatePickUpLocation(userPickupAddress);
 
       log("(getAddressFromLatLng) => Address: ${data.address}");
     } catch (e) {
@@ -129,7 +131,7 @@ class _HomeState extends State<Home> {
             color: darkTheme ? DarkColors.background : LightColors.background,
             child: Center(
                 child: CircularProgressIndicator(
-              color: darkTheme ? DarkColors.textSecondary : LightColors.textSecondary,
+              color: DarkColors.primary,
             )))
         : GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
@@ -138,6 +140,7 @@ class _HomeState extends State<Home> {
                 body: Stack(
                   children: [
                     GoogleMap(
+                      polylines: polylineSet,
                       compassEnabled: true,
                       onTap: (LatLng location) {
                         setState(() {
@@ -190,12 +193,13 @@ class _HomeState extends State<Home> {
                                   SizedBox(height: 6),
                                   GestureDetector(
                                     onTap: () async {
-                                      var responseFromSearchScreen = await Navigator.push(context,
+                                      // var responseFromSearchScreen = 
+                                      await Navigator.push(context,
                                           MaterialPageRoute(builder: (context) => SearchPlacesScreen()));
-                                      if (responseFromSearchScreen == "obtainedDropOff") {
-                                        setState(() => openNavigationDrawer = false);
-                                      }
-                                      await drawPolyLineFromOriginToDestination();
+                                      // if (responseFromSearchScreen == "obtainedDropOff") {
+                                      //   setState(() => openNavigationDrawer = false);
+                                      // }
+                                      await drawPolyLineFromOriginToDestination(darkTheme);
                                     },
                                     child: ToAddressContainer(darkTheme: darkTheme),
                                   ),
@@ -214,39 +218,55 @@ class _HomeState extends State<Home> {
   }
 
   DirectionDetailsInfo? tripDirectionDetailsInfo;
-  Future<void> drawPolyLineFromOriginToDestination() async {
-    var originPosition = context.read<PickUpAndDropOffLocationCubit>().userPickUpLocation;
-    var destinationPosition = context.read<PickUpAndDropOffLocationCubit>().userDropOffLocation;
-    markerSet.add(Marker(
-        markerId: MarkerId("dropOffId"),
-        position: LatLng(destinationPosition!.locationLatitude!, destinationPosition.locationLongitude!)));
 
-    var originLatlng = LatLng(originPosition!.locationLatitude!, originPosition.locationLongitude!);
+  Future<void> drawPolyLineFromOriginToDestination(bool darkTheme) async {
+    var originPosition = context.read<PickUpLocationCubit>().userPickUpLocation;
+    var destinationPosition = context.read<DropOffLocationCubit>().userDropOffLocation;
+
+    if (originPosition == null || destinationPosition == null) {
+      debugPrint("Origin or Destination is null");
+      return;
+    }
+
+    var originLatlng = LatLng(originPosition.locationLatitude!, originPosition.locationLongitude!);
     var destinationLatlng =
         LatLng(destinationPosition.locationLatitude!, destinationPosition.locationLongitude!);
 
-    // showDialog(
-    //     context: context,
-    //     builder: (context) => ProgressDialog(
-    //           message: "Please wait...",
-    //           darkTheme: sss,
-    //         ));
+    setState(() {
+      markerSet.add(Marker(markerId: MarkerId("dropOffId"), position: destinationLatlng));
+    });
+
+    showDialog(
+        context: context,
+        builder: (context) => ProgressDialog(
+              message: "Please wait...",
+              darkTheme: darkTheme,
+            ));
+
     var directionDetailsInfo =
         await obtainOriginalToDistinationDirectionDetails(originLatlng, destinationLatlng);
+
     setState(() {
       tripDirectionDetailsInfo = directionDetailsInfo;
     });
 
     Navigator.pop(context);
+
     PolylinePoints pPoints = PolylinePoints();
     List<PointLatLng> decodePolyLinePointsResultList = pPoints.decodePolyline(directionDetailsInfo.ePoints!);
 
-    pLineCoordinatedList.clear();
-    if (decodePolyLinePointsResultList.isNotEmpty) {
-      for (var pointLatLng in decodePolyLinePointsResultList) {
-        pLineCoordinatedList.add(LatLng(pointLatLng.latitude, pointLatLng.longitude));
-      }
+    if (decodePolyLinePointsResultList.isEmpty) {
+      log("Decoded polyline is empty. Check API response.");
+      return;
     }
+
+    pLineCoordinatedList.clear();
+    for (var pointLatLng in decodePolyLinePointsResultList) {
+      pLineCoordinatedList.add(LatLng(pointLatLng.latitude, pointLatLng.longitude));
+    }
+
+    log("Decoded Polyline Points: $pLineCoordinatedList");
+
     polylineSet.clear();
     setState(() {
       Polyline polyline = Polyline(
@@ -261,13 +281,13 @@ class _HomeState extends State<Home> {
       );
       polylineSet.add(polyline);
     });
+
+    debugPrint("Polyline Set: $polylineSet");
+
     LatLngBounds boundslatlng;
     if (originLatlng.latitude > destinationLatlng.latitude &&
         originLatlng.longitude > destinationLatlng.longitude) {
-      boundslatlng = LatLngBounds(
-        southwest: destinationLatlng,
-        northeast: originLatlng,
-      );
+      boundslatlng = LatLngBounds(southwest: destinationLatlng, northeast: originLatlng);
     } else if (originLatlng.longitude > destinationLatlng.longitude) {
       boundslatlng = LatLngBounds(
           southwest: LatLng(originLatlng.latitude, destinationLatlng.longitude),
@@ -277,43 +297,34 @@ class _HomeState extends State<Home> {
           southwest: LatLng(destinationLatlng.latitude, originLatlng.longitude),
           northeast: LatLng(originLatlng.latitude, destinationLatlng.longitude));
     } else {
-      boundslatlng = LatLngBounds(
-        southwest: originLatlng,
-        northeast: destinationLatlng,
-      );
+      boundslatlng = LatLngBounds(southwest: originLatlng, northeast: destinationLatlng);
     }
 
     newgoogleMapController!.animateCamera(CameraUpdate.newLatLngBounds(boundslatlng, 65));
-    // Marker originMarker = Marker(
-    //   markerId: MarkerId("OriginID"),
-    //   infoWindow: InfoWindow(title: originPosition.locationName, snippet: "Origin"),
-    //   position: originLatlng,
-    //   icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-    // );
-    Marker destinationMarker = Marker(
-      markerId: MarkerId("DestinationID"),
-      infoWindow: InfoWindow(title: destinationPosition.locationName, snippet: "Destination"),
-      position: destinationLatlng,
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-    );
-    setState(() {
-      // markerSet.add(originMarker);
-      markerSet.add(destinationMarker);
-    });
   }
 
   Future<DirectionDetailsInfo> obtainOriginalToDistinationDirectionDetails(
-      LatLng originPosition, LatLng destinationPosition) async {
+      LatLng originPosition, destinationPosition) async {
     String urlOriginToDistinationDirectionDetails =
         "https://maps.googleapis.com/maps/api/directions/json?origin=${originPosition.latitude},${originPosition.longitude}&destination=${destinationPosition.latitude},${destinationPosition.longitude}&key=${Constants.mapKey}";
-    var responseDirectionAPI = await receiveRequest(urlOriginToDistinationDirectionDetails);
-    DirectionDetailsInfo directionDetailsInfo = DirectionDetailsInfo();
-    directionDetailsInfo.ePoints = responseDirectionAPI["routes"][0]["overview_polyline"]["points"];
-    directionDetailsInfo.distanceText = responseDirectionAPI["routes"][0]["legs"][0]["distance"]["text"];
-    directionDetailsInfo.distanceValue = responseDirectionAPI["routes"][0]["legs"][0]["distance"]["value"];
-    directionDetailsInfo.durationText = responseDirectionAPI["routes"][0]["legs"][0]["duration"]["text"];
-    directionDetailsInfo.durationValue = responseDirectionAPI["routes"][0]["legs"][0]["duration"]["value"];
 
+    var responseDirectionAPI = await DioClient().get(urlOriginToDistinationDirectionDetails);
+
+    if (responseDirectionAPI.data["routes"].isEmpty) {
+      debugPrint("API response is empty or invalid");
+      return DirectionDetailsInfo();
+    }
+
+    debugPrint("Directions API Response: $responseDirectionAPI");
+
+    DirectionDetailsInfo directionDetailsInfo = DirectionDetailsInfo();
+    directionDetailsInfo.ePoints = responseDirectionAPI.data["routes"][0]["overview_polyline"]["points"];
+    directionDetailsInfo.distanceText = responseDirectionAPI.data["routes"][0]["legs"][0]["distance"]["text"];
+    directionDetailsInfo.distanceValue =
+        responseDirectionAPI.data["routes"][0]["legs"][0]["distance"]["value"];
+    directionDetailsInfo.durationText = responseDirectionAPI.data["routes"][0]["legs"][0]["duration"]["text"];
+    directionDetailsInfo.durationValue =
+        responseDirectionAPI.data["routes"][0]["legs"][0]["duration"]["value"];
     return directionDetailsInfo;
   }
 }
