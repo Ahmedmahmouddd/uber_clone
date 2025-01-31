@@ -4,23 +4,22 @@ import 'package:uber_clone/common/theme_provider/app_colors.dart';
 import 'package:uber_clone/common/theme_provider/app_styles.dart';
 
 class AuthTextFormField extends StatelessWidget {
-  const AuthTextFormField({
-    super.key,
-    required this.darkTheme,
-     this.nameController,
-    required this.hint,
-    required this.icon,
-    this.validator,
-    this.suffixIcon,
-    this.obsecure = false,
-    this.onChanged
-  });
+  const AuthTextFormField(
+      {super.key,
+      required this.darkTheme,
+      this.controller,
+      this.hint,
+      this.icon,
+      this.validator,
+      this.suffixIcon,
+      this.obsecure = false,
+      this.onChanged});
 
   final bool darkTheme;
   final IconButton? suffixIcon;
-  final TextEditingController? nameController;
-  final String hint;
-  final IconData icon;
+  final TextEditingController? controller;
+  final String? hint;
+  final IconData? icon;
   final String? Function(String?)? validator;
   final bool? obsecure;
   final void Function(String)? onChanged;
@@ -29,9 +28,10 @@ class AuthTextFormField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Theme(
       data: Theme.of(context).copyWith(
-        inputDecorationTheme: InputDecorationTheme(errorStyle: AppStyles.styleError12Red()),
+        inputDecorationTheme: InputDecorationTheme(errorStyle: AppStyles.styleError12()),
       ),
       child: TextFormField(
+        
         onChanged: onChanged,
         obscuringCharacter: "*",
         obscureText: obsecure!,
@@ -46,11 +46,13 @@ class AuthTextFormField extends StatelessWidget {
           hintStyle: AppStyles.styleSemiBold16(darkTheme),
           suffixIcon: suffixIcon,
           fillColor: darkTheme ? DarkColors.accent : LightColors.accent,
-          prefixIcon: Icon(icon, color: darkTheme ? DarkColors.textSecondary : LightColors.textSecondary),
+          prefixIcon: icon == null
+              ? null
+              : Icon(icon, color: darkTheme ? DarkColors.textSecondary : LightColors.textSecondary),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
         ),
         validator: validator,
-        controller: nameController,
+        controller: controller,
       ),
     );
   }

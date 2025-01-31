@@ -38,6 +38,6 @@ class AuthButton extends StatelessWidget {
                       color: darkTheme ? DarkColors.accent : LightColors.background,
                     ),
                   )
-                : SizedBox(child: Text(text, style: AppStyles.style18Bold(darkTheme)))));
+                : SizedBox(child: Text(text, style: AppStyles.styleBold18Reverse(darkTheme)))));
   }
 }

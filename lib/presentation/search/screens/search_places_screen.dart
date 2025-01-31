@@ -63,7 +63,7 @@ class _SearchPlacesScreenState extends State<SearchPlacesScreen> {
                     Icons.arrow_back_ios_new,
                     color: darkTheme ? DarkColors.accent : LightColors.accent,
                   )),
-              title: Text("Set dropoff location", style: AppStyles.styleReverseSemiBold16(darkTheme)),
+              title: Text("Set dropoff location", style: AppStyles.styleSemiBold16Reverse(darkTheme)),
             ),
             body: Column(
               children: [

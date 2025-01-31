@@ -58,7 +58,7 @@ class _SignInState extends State<SignIn> {
                           children: [
                             AuthTextFormField(
                               darkTheme: darkTheme,
-                              nameController: emailController,
+                              controller: emailController,
                               hint: "Email",
                               icon: Icons.email_rounded,
                               validator: (value) {
@@ -92,7 +92,7 @@ class _SignInState extends State<SignIn> {
                                           color: darkTheme ? DarkColors.background : LightColors.white),
                                     ),
                               darkTheme: darkTheme,
-                              nameController: passwordController,
+                              controller: passwordController,
                               hint: "Password",
                               icon: Icons.password_rounded,
                               validator: (value) {
@@ -143,7 +143,10 @@ class _SignInState extends State<SignIn> {
                                   },
                                   child: Text("Sign up",
                                       style: AppStyles.styleBold16(darkTheme)
-                                          .copyWith(decoration: TextDecoration.underline)),
+                                          .copyWith(color: LightColors.primary)
+                                          .copyWith(
+                                              decoration: TextDecoration.underline,
+                                              decorationColor: LightColors.primary)),
                                 ),
                               ],
                             ),

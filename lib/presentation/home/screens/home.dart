@@ -16,7 +16,9 @@ import 'package:uber_clone/presentation/home/bloc/drop_off_cubit/drop_off_cubit.
 import 'package:uber_clone/presentation/home/bloc/pickup&dropoff_location_cubit/pickup_location_cubit.dart';
 import 'package:uber_clone/presentation/home/models/direction_details_indo.dart';
 import 'package:uber_clone/presentation/home/models/directions_model.dart';
+import 'package:uber_clone/presentation/home/screens/drawer_screen.dart';
 import 'package:uber_clone/presentation/home/widgets/from_address_container.dart';
+import 'package:uber_clone/presentation/home/widgets/positioned_icon.dart';
 import 'package:uber_clone/presentation/home/widgets/to_address_container.dart';
 import 'package:uber_clone/presentation/search/screens/search_places_screen.dart';
 import 'package:uber_clone/presentation/search/widgets/progress_dialog.dart';
@@ -46,7 +48,8 @@ class _HomeState extends State<Home> {
   BitmapDescriptor? activeNearbyIcon;
   String userName = "";
   String userEmail = "";
-
+  DirectionDetailsInfo? tripDirectionDetailsInfo;
+  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   void initState() {
     super.initState();
@@ -123,102 +126,6 @@ class _HomeState extends State<Home> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    bool darkTheme = MediaQuery.of(context).platformBrightness == Brightness.dark;
-    return userCurrentPosition == null
-        ? Container(
-            color: darkTheme ? DarkColors.background : LightColors.background,
-            child: Center(
-                child: CircularProgressIndicator(
-              color: DarkColors.primary,
-            )))
-        : GestureDetector(
-            onTap: () => FocusScope.of(context).unfocus(),
-            child: SafeArea(
-              child: Scaffold(
-                body: Stack(
-                  children: [
-                    GoogleMap(
-                      polylines: polylineSet,
-                      compassEnabled: true,
-                      onTap: (LatLng location) {
-                        setState(() {
-                          pickLocation = location;
-                          getAddressFromLatLng();
-                        });
-                        markerSet.add(Marker(markerId: MarkerId("pickUpId"), position: pickLocation!));
-                      },
-                      mapType: MapType.hybrid,
-                      myLocationEnabled: true,
-                      myLocationButtonEnabled: true,
-                      zoomGesturesEnabled: true,
-                      zoomControlsEnabled: true,
-                      initialCameraPosition: kGooglePlex,
-                      markers: markerSet,
-                      circles: circleSet,
-                      onMapCreated: (GoogleMapController controller) {
-                        googleMapController.complete(controller);
-                        newgoogleMapController = controller;
-                        setState(() {});
-                        locateUserPosition();
-                      },
-                      // onCameraMove: (CameraPosition? position) {
-                      //   setState(() => pickLocation = position!.target);
-                      // },
-                      onCameraIdle: () {
-                        getAddressFromLatLng();
-                      },
-                    ),
-                    Align(
-                        alignment: Alignment.center,
-                        child: Icon(Icons.location_on, size: 32, color: LightColors.primary)),
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(20, 50, 20, 20),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: darkTheme ? DarkColors.background : LightColors.white),
-                              child: Column(
-                                children: [
-                                  FromAddressContainer(darkTheme: darkTheme),
-                                  SizedBox(height: 6),
-                                  GestureDetector(
-                                    onTap: () async {
-                                      // var responseFromSearchScreen = 
-                                      await Navigator.push(context,
-                                          MaterialPageRoute(builder: (context) => SearchPlacesScreen()));
-                                      // if (responseFromSearchScreen == "obtainedDropOff") {
-                                      //   setState(() => openNavigationDrawer = false);
-                                      // }
-                                      await drawPolyLineFromOriginToDestination(darkTheme);
-                                    },
-                                    child: ToAddressContainer(darkTheme: darkTheme),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          );
-  }
-
-  DirectionDetailsInfo? tripDirectionDetailsInfo;
-
   Future<void> drawPolyLineFromOriginToDestination(bool darkTheme) async {
     var originPosition = context.read<PickUpLocationCubit>().userPickUpLocation;
     var destinationPosition = context.read<DropOffLocationCubit>().userDropOffLocation;
@@ -233,7 +140,11 @@ class _HomeState extends State<Home> {
         LatLng(destinationPosition.locationLatitude!, destinationPosition.locationLongitude!);
 
     setState(() {
-      markerSet.add(Marker(markerId: MarkerId("dropOffId"), position: destinationLatlng));
+      markerSet.add(Marker(
+          markerId: MarkerId("dropOffId"),
+          position: destinationLatlng,
+          infoWindow: InfoWindow(title: "🎯 Drop-off Location"),
+          alpha: 0.7));
     });
 
     showDialog(
@@ -270,15 +181,14 @@ class _HomeState extends State<Home> {
     polylineSet.clear();
     setState(() {
       Polyline polyline = Polyline(
-        color: Colors.purple,
-        polylineId: PolylineId("PolylineID"),
-        jointType: JointType.round,
-        points: pLineCoordinatedList,
-        startCap: Cap.roundCap,
-        endCap: Cap.roundCap,
-        geodesic: true,
-        width: 5,
-      );
+          color: Colors.purple,
+          polylineId: PolylineId("PolylineID"),
+          jointType: JointType.round,
+          points: pLineCoordinatedList,
+          startCap: Cap.roundCap,
+          endCap: Cap.roundCap,
+          geodesic: true,
+          width: 5);
       polylineSet.add(polyline);
     });
 
@@ -326,5 +236,153 @@ class _HomeState extends State<Home> {
     directionDetailsInfo.durationValue =
         responseDirectionAPI.data["routes"][0]["legs"][0]["duration"]["value"];
     return directionDetailsInfo;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    bool darkTheme = MediaQuery.of(context).platformBrightness == Brightness.dark;
+    return userCurrentPosition == null
+        ? Container(
+            color: darkTheme ? DarkColors.background : LightColors.background,
+            child: Center(
+                child: CircularProgressIndicator(
+              color: DarkColors.primary,
+            )))
+        : GestureDetector(
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: SafeArea(
+              child: Scaffold(
+                key: scaffoldKey,
+                drawer: DrawerScreen(darkTheme: darkTheme),
+                body: Stack(
+                  children: [
+                    GoogleMap(
+                      padding: const EdgeInsets.only(bottom: 130),
+                      mapToolbarEnabled: false,
+                      polylines: polylineSet,
+                      compassEnabled: true,
+                      onTap: (LatLng location) {
+                        setState(() {
+                          pickLocation = location;
+                          getAddressFromLatLng();
+                        });
+                        markerSet.add(Marker(
+                          markerId: MarkerId("pickUpId"),
+                          alpha: 0.7,
+                          position: pickLocation!,
+                          infoWindow: InfoWindow(title: "🚖 Pickup Location"),
+                          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+                        ));
+                      },
+                      mapType: MapType.hybrid,
+                      myLocationEnabled: true,
+                      myLocationButtonEnabled: false,
+                      zoomGesturesEnabled: true,
+                      zoomControlsEnabled: false,
+                      initialCameraPosition: kGooglePlex,
+                      markers: markerSet,
+                      circles: circleSet,
+                      onMapCreated: (GoogleMapController controller) {
+                        googleMapController.complete(controller);
+                        newgoogleMapController = controller;
+                        setState(() {});
+                        locateUserPosition();
+                      },
+                      // onCameraMove: (CameraPosition? position) {
+                      //   setState(() => pickLocation = position!.target);
+                      // },
+                      onCameraIdle: () {
+                        getAddressFromLatLng();
+                      },
+                    ),
+
+                    //Zoom In Button
+                    PositionedIcon(
+                      iconData: Icons.add,
+                      darkTheme: darkTheme,
+                      bottom: 180,
+                      right: 8,
+                      onPressed: () async {
+                        final controller = await googleMapController.future;
+                        controller.animateCamera(CameraUpdate.zoomIn());
+                      },
+                    ),
+
+                    //Zoom Out Button
+                    PositionedIcon(
+                      iconData: Icons.remove,
+                      darkTheme: darkTheme,
+                      bottom: 135,
+                      right: 8,
+                      onPressed: () async {
+                        final controller = await googleMapController.future;
+                        controller.animateCamera(CameraUpdate.zoomOut());
+                      },
+                    ),
+
+                    //Locate Myself Button
+                    PositionedIcon(
+                      iconData: Icons.my_location,
+                      darkTheme: darkTheme,
+                      top: 8,
+                      right: 8,
+                      onPressed: () async {
+                        locateUserPosition();
+                      },
+                    ),
+                    //Open Drawer Button
+                    PositionedIcon(
+                      iconData: Icons.menu,
+                      top: 8,
+                      left: 8,
+                      darkTheme: darkTheme,
+                      onPressed: () => scaffoldKey.currentState!.openDrawer(),
+                    ),
+
+                    Align(
+                        alignment: Alignment.center,
+                        child: Icon(Icons.location_on, size: 32, color: LightColors.primary)),
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(20, 50, 20, 20),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: darkTheme ? DarkColors.background : LightColors.white),
+                              child: Column(
+                                children: [
+                                  FromAddressContainer(darkTheme: darkTheme),
+                                  SizedBox(height: 6),
+                                  GestureDetector(
+                                    onTap: () async {
+                                      // var responseFromSearchScreen =
+                                      await Navigator.push(context,
+                                          MaterialPageRoute(builder: (context) => SearchPlacesScreen()));
+                                      // if (responseFromSearchScreen == "obtainedDropOff") {
+                                      //   setState(() => openNavigationDrawer = false);
+                                      // }
+                                      await drawPolyLineFromOriginToDestination(darkTheme);
+                                    },
+                                    child: ToAddressContainer(darkTheme: darkTheme),
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          );
   }
 }

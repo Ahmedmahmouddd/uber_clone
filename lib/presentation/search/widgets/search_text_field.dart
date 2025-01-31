@@ -28,7 +28,7 @@ class SearchTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Theme(
       data: Theme.of(context).copyWith(
-        inputDecorationTheme: InputDecorationTheme(errorStyle: AppStyles.styleError12Red()),
+        inputDecorationTheme: InputDecorationTheme(errorStyle: AppStyles.styleError12()),
       ),
       child: TextFormField(
         onChanged: onChanged,

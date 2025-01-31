@@ -66,7 +66,7 @@ class _SignUpState extends State<SignUp> {
                           children: [
                             AuthTextFormField(
                               darkTheme: darkTheme,
-                              nameController: nameController,
+                              controller: nameController,
                               hint: "Name",
                               icon: Icons.person,
                               validator: (value) {
@@ -85,7 +85,7 @@ class _SignUpState extends State<SignUp> {
                             SizedBox(height: 10),
                             AuthTextFormField(
                               darkTheme: darkTheme,
-                              nameController: emailController,
+                              controller: emailController,
                               hint: "Email",
                               icon: Icons.email_rounded,
                               validator: (value) {
@@ -104,7 +104,7 @@ class _SignUpState extends State<SignUp> {
                             SizedBox(height: 10),
                             AuthTextFormField(
                               darkTheme: darkTheme,
-                              nameController: addressController,
+                              controller: addressController,
                               hint: "Address",
                               icon: Icons.location_city_rounded,
                               validator: (value) {
@@ -145,7 +145,7 @@ class _SignUpState extends State<SignUp> {
                                           color: darkTheme ? DarkColors.background : LightColors.white),
                                     ),
                               darkTheme: darkTheme,
-                              nameController: passwordController,
+                              controller: passwordController,
                               hint: "Password",
                               icon: Icons.password_rounded,
                               validator: (value) {
@@ -186,7 +186,7 @@ class _SignUpState extends State<SignUp> {
                                           color: darkTheme ? DarkColors.background : LightColors.white),
                                     ),
                               darkTheme: darkTheme,
-                              nameController: confirmPasswordController,
+                              controller: confirmPasswordController,
                               hint: "Confirm Password",
                               icon: Icons.password_rounded,
                               validator: (value) {
@@ -242,7 +242,10 @@ class _SignUpState extends State<SignUp> {
                                   },
                                   child: Text("Sign in",
                                       style: AppStyles.styleBold16(darkTheme)
-                                          .copyWith(decoration: TextDecoration.underline)),
+                                          .copyWith(color: LightColors.primary)
+                                          .copyWith(
+                                              decoration: TextDecoration.underline,
+                                              decorationColor: LightColors.primary)),
                                 ),
                               ],
                             ),

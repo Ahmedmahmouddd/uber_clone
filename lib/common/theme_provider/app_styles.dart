@@ -11,6 +11,24 @@ abstract class AppStyles {
     );
   }
 
+  static TextStyle styleBold20(bool darkTheme) {
+    return TextStyle(
+      fontSize: 20,
+      fontWeight: FontWeight.bold,
+      color: darkTheme ? DarkColors.textPrimary : LightColors.textPrimary,
+      fontFamily: 'Poppins',
+    );
+  }
+
+  static TextStyle styleSemiBold14(bool darkTheme) {
+    return TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      fontFamily: 'Poppins',
+      color: darkTheme ? DarkColors.textPrimary : LightColors.textPrimary,
+    );
+  }
+
   static TextStyle styleSemiBold16(bool darkTheme) {
     return TextStyle(
       fontSize: 16,
@@ -19,7 +37,17 @@ abstract class AppStyles {
       color: darkTheme ? DarkColors.textPrimary : LightColors.textPrimary,
     );
   }
-     static TextStyle styleReverseSemiBold16(bool darkTheme) {
+
+  static TextStyle styleSemiBold18(bool darkTheme) {
+    return TextStyle(
+      fontSize: 18,
+      fontWeight: FontWeight.w600,
+      fontFamily: 'Poppins',
+      color: darkTheme ? DarkColors.textPrimary : LightColors.textPrimary,
+    );
+  }
+
+  static TextStyle styleSemiBold16Reverse(bool darkTheme) {
     return TextStyle(
       fontSize: 16,
       fontWeight: FontWeight.w600,
@@ -28,16 +56,16 @@ abstract class AppStyles {
     );
   }
 
-   static TextStyle styleSnackbar() {
+  static TextStyle styleSnackbar() {
     return TextStyle(
-      fontSize: 16,
+      fontSize: 14,
       fontWeight: FontWeight.w600,
       fontFamily: 'Poppins',
       color: LightColors.background,
     );
   }
 
-  static TextStyle styleError12Red() {
+  static TextStyle styleError12() {
     return TextStyle(
       color: Colors.red,
       fontFamily: 'Poppins',
@@ -46,7 +74,7 @@ abstract class AppStyles {
     );
   }
 
-  static TextStyle style18Bold(bool darkTheme) {
+  static TextStyle styleBold18Reverse(bool darkTheme) {
     return TextStyle(
       fontSize: 18,
       color: darkTheme ? DarkColors.textPrimary : LightColors.white,
@@ -70,34 +98,4 @@ abstract class AppStyles {
         fontFamily: 'Poppins',
         fontSize: 12);
   }
-  
 }
-
-// // sacleFactor
-// // responsive font size
-// // (min , max) fontsize
-// double getResponsiveFontSize(context, {required double fontSize}) {
-//   double scaleFactor = getScaleFactor(context);
-//   double responsiveFontSize = fontSize * scaleFactor;
-
-//   double lowerLimit = fontSize * .8;
-//   double upperLimit = fontSize * 1.2;
-
-//   return responsiveFontSize.clamp(lowerLimit, upperLimit);
-// }
-
-// double getScaleFactor(context) {
-//   // var dispatcher = PlatformDispatcher.instance;
-//   // var physicalWidth = dispatcher.views.first.physicalSize.width;
-//   // var devicePixelRatio = dispatcher.views.first.devicePixelRatio;
-//   // double width = physicalWidth / devicePixelRatio;
-
-//   double width = MediaQuery.sizeOf(context).width;
-//   if (width < SizeConfig.tablet) {
-//     return width / 550;
-//   } else if (width < SizeConfig.desktop) {
-//     return width / 1000;
-//   } else {
-//     return width / 1920;
-//   }
-// }

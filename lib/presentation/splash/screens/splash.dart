@@ -13,22 +13,19 @@ class AuthGate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool darkTheme = MediaQuery.of(context).platformBrightness == Brightness.dark;
-    return BlocProvider(
-      create: (context) => AuthGateCubit()..chackAuthState(),
-      child: BlocBuilder<AuthGateCubit, AuthGateState>(
-        builder: (context, state) {
-          if (state is AuthGateInitial) {
-            return Scaffold(backgroundColor: darkTheme ? DarkColors.background : LightColors.background);
-          } else if (state is AuthGateAuthenticated) {
-            return Home();
-          } else if (state is AuthGateUnAuthenticated) {
-            return SignIn();
-          } else if (state is AuthGateFailure) {
-            return Scaffold(body: Center(child: Text(state.errorMessage)));
-          }
-          return Scaffold(body: Text("Unexpected state occurred"));
-        },
-      ),
+    return BlocBuilder<AuthGateCubit, AuthGateState>(
+      builder: (context, state) {
+        if (state is AuthGateInitial) {
+          return Scaffold(backgroundColor: darkTheme ? DarkColors.background : LightColors.background);
+        } else if (state is AuthGateAuthenticated) {
+          return Home();
+        } else if (state is AuthGateUnAuthenticated) {
+          return SignIn();
+        } else if (state is AuthGateFailure) {
+          return Scaffold(body: Center(child: Text(state.errorMessage)));
+        }
+        return Scaffold(body: Text("Unexpected state occurred"));
+      },
     );
   }
 }
