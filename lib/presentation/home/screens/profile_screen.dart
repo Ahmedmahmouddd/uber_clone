@@ -91,12 +91,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 darkTheme: darkTheme,
                 controller: nameTextEditingController,
                 cancelButton: () {
+                  nameTextEditingController.clear();
                   Navigator.pop(context);
                 },
                 updateButton: () {
+                  context.read<AuthGateCubit>().userModelCurrentInfo!.name =
+                      nameTextEditingController.text.trim();
                   userRef
                       .child(FirebaseAuth.instance.currentUser!.uid)
-                      .update({"name": nameTextEditingController.text}).then(
+                      .update({"name": nameTextEditingController.text.trim()}).then(
                           (value) => showCustomSnackBar(context, "Name has been updated", darkTheme));
                   nameTextEditingController.clear();
                   Navigator.pop(context);
@@ -117,6 +120,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Navigator.pop(context);
                 },
                 updateButton: () {
+                  context.read<AuthGateCubit>().userModelCurrentInfo!.address =
+                      addressTextEditingController.text.trim();
+                  userRef
+                      .child(FirebaseAuth.instance.currentUser!.uid)
+                      .update({"address": addressTextEditingController.text.trim()}).then(
+                          (value) => showCustomSnackBar(context, "Address has been updated", darkTheme));
+                  addressTextEditingController.clear();
                   Navigator.pop(context);
                 },
               ),
@@ -135,6 +145,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Navigator.pop(context);
                 },
                 updateButton: () {
+                  context.read<AuthGateCubit>().userModelCurrentInfo!.phoneNumber =
+                      phoneNumberTextEditingController.text.trim();
+                  userRef
+                      .child(FirebaseAuth.instance.currentUser!.uid)
+                      .update({"phone": phoneNumberTextEditingController.text.trim()}).then(
+                          (value) => showCustomSnackBar(context, "Phone number has been updated", darkTheme));
+                  phoneNumberTextEditingController.clear();
                   Navigator.pop(context);
                 },
               ),
