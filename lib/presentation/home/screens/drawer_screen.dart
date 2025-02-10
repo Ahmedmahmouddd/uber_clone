@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uber_clone/common/theme_provider/app_colors.dart';
 import 'package:uber_clone/common/theme_provider/app_styles.dart';
 import 'package:uber_clone/presentation/auth/screens/signin.dart';
+import 'package:uber_clone/presentation/home/bloc/save_current_user_info_cubit/save_current_user_info_cubit.dart';
 import 'package:uber_clone/presentation/home/screens/profile_screen.dart';
-import 'package:uber_clone/presentation/splash/bloc/auth_gate_cubit/auth_gate_cubit.dart';
 
 class DrawerScreen extends StatelessWidget {
   const DrawerScreen({super.key, required this.darkTheme});
@@ -35,8 +35,8 @@ class DrawerScreen extends StatelessWidget {
             SizedBox(height: 12),
             Center(
               child: Text(
-                  context.read<AuthGateCubit>().userModelCurrentInfo!.name![0].toUpperCase() +
-                      context.read<AuthGateCubit>().userModelCurrentInfo!.name!.substring(1),
+                  context.read<LoadCurrentUserInfoCubit>().userModelCurrentInfo!.name![0].toUpperCase() +
+                      context.read<LoadCurrentUserInfoCubit>().userModelCurrentInfo!.name!.substring(1),
                   style: AppStyles.styleBold20(darkTheme),
                   textAlign: TextAlign.center),
             ),

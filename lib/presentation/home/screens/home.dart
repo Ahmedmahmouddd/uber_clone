@@ -14,6 +14,7 @@ import 'package:uber_clone/common/network/dio_client.dart';
 import 'package:uber_clone/common/theme_provider/app_colors.dart';
 import 'package:uber_clone/presentation/home/bloc/drop_off_cubit/drop_off_cubit.dart';
 import 'package:uber_clone/presentation/home/bloc/pickup&dropoff_location_cubit/pickup_location_cubit.dart';
+import 'package:uber_clone/presentation/home/bloc/save_current_user_info_cubit/save_current_user_info_cubit.dart';
 import 'package:uber_clone/presentation/home/models/direction_details_indo.dart';
 import 'package:uber_clone/presentation/home/models/directions_model.dart';
 import 'package:uber_clone/presentation/home/screens/drawer_screen.dart';
@@ -22,7 +23,6 @@ import 'package:uber_clone/presentation/home/widgets/positioned_icon.dart';
 import 'package:uber_clone/presentation/home/widgets/to_address_container.dart';
 import 'package:uber_clone/presentation/search/screens/search_places_screen.dart';
 import 'package:uber_clone/presentation/search/widgets/progress_dialog.dart';
-import 'package:uber_clone/presentation/splash/bloc/auth_gate_cubit/auth_gate_cubit.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -45,15 +45,20 @@ class _HomeState extends State<Home> {
   var geolocation = Geolocator();
   final Set<Marker> markerSet = {};
   final Set<Circle> circleSet = {};
-  BitmapDescriptor? activeNearbyIcon;
-  String userName = "";
-  String userEmail = "";
+  // BitmapDescriptor? activeNearbyIcon;
+  // String userName = "";
+  // String userEmail = "";
   DirectionDetailsInfo? tripDirectionDetailsInfo;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   @override
-  void initState() {
+  void initState()  {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _checkLocationPermission());
+    loadCurrentUserData();
+  }
+
+  loadCurrentUserData() async {
+    await context.read<LoadCurrentUserInfoCubit>().loadUser();
   }
 
   //1
@@ -89,13 +94,6 @@ class _HomeState extends State<Home> {
 
       newgoogleMapController!
           .animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: latLngPosition, zoom: 15)));
-
-      // final humanReadableAddress = await getAddressNameFromCoordinates(position);
-      // log("Address: $humanReadableAddress");
-
-      final userModelCurrentInfo = context.read<AuthGateCubit>().userModelCurrentInfo;
-      userName = userModelCurrentInfo!.name!;
-      userEmail = userModelCurrentInfo.email!;
     } catch (e) {
       log("Error getting user's current location: $e");
     }

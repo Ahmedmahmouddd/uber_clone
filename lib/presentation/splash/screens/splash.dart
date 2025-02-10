@@ -1,9 +1,8 @@
 // ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uber_clone/common/theme_provider/app_colors.dart';
-import 'package:uber_clone/presentation/auth/screens/signin.dart';
+import 'package:uber_clone/presentation/auth/screens/signup.dart';
 import 'package:uber_clone/presentation/home/screens/home.dart';
 import 'package:uber_clone/presentation/splash/bloc/auth_gate_cubit/auth_gate_cubit.dart';
 
@@ -20,7 +19,7 @@ class AuthGate extends StatelessWidget {
         } else if (state is AuthGateAuthenticated) {
           return Home();
         } else if (state is AuthGateUnAuthenticated) {
-          return SignIn();
+          return SignUp();
         } else if (state is AuthGateFailure) {
           return Scaffold(body: Center(child: Text(state.errorMessage)));
         }

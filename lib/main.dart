@@ -7,6 +7,7 @@ import 'package:uber_clone/presentation/home/bloc/drop_off_cubit/drop_off_cubit.
 import 'package:uber_clone/presentation/home/bloc/pickup&dropoff_location_cubit/pickup_location_cubit.dart';
 import 'package:uber_clone/presentation/splash/bloc/auth_gate_cubit/auth_gate_cubit.dart';
 import 'package:uber_clone/presentation/splash/screens/splash.dart';
+import 'package:uber_clone/presentation/home/bloc/save_current_user_info_cubit/save_current_user_info_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +24,8 @@ class TaxiApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (context) => PickUpLocationCubit()),
         BlocProvider(create: (context) => DropOffLocationCubit()),
-        BlocProvider(create: (context) => AuthGateCubit()..chackAuthState())
+        BlocProvider(create: (context) => AuthGateCubit()..chackAuthState()),
+        BlocProvider(create: (conntext) => LoadCurrentUserInfoCubit()),
       ],
       child: MaterialApp(
         themeMode: ThemeMode.system,

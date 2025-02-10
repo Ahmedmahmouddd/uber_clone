@@ -1,13 +1,15 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uber_clone/common/theme_provider/app_colors.dart';
 import 'package:uber_clone/common/theme_provider/app_styles.dart';
-import 'package:uber_clone/presentation/auth/widgets/auth_text_field.dart';
 import 'package:uber_clone/presentation/auth/widgets/custom_snackbar.dart';
+import 'package:uber_clone/presentation/home/bloc/save_current_user_info_cubit/save_current_user_info_cubit.dart';
+import 'package:uber_clone/presentation/home/widgets/edit_dialog_alet.dart';
 import 'package:uber_clone/presentation/home/widgets/edit_user_info_row.dart';
-import 'package:uber_clone/presentation/splash/bloc/auth_gate_cubit/auth_gate_cubit.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -22,31 +24,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final addressTextEditingController = TextEditingController();
   DatabaseReference userRef = FirebaseDatabase.instance.ref().child("users");
 
-  Future<void> editDialogAlert(
-      {required BuildContext context,
-      required String stringInput,
-      editedString,
-      required bool darkTheme,
-      required TextEditingController controller,
-      required Function() cancelButton,
-      required Function() updateButton}) {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text("Update $editedString", style: AppStyles.styleSemiBold14(darkTheme)),
-          content: AuthTextFormField(darkTheme: darkTheme, controller: controller),
-          actions: [
-            TextButton(
-                onPressed: cancelButton, child: Text("Cancel", style: AppStyles.styleSemiBold12(darkTheme))),
-            TextButton(
-                onPressed: updateButton, child: Text("Update", style: AppStyles.styleSemiBold12(darkTheme))),
-          ],
-        );
-      },
-    );
-  }
-
+ 
   @override
   Widget build(BuildContext context) {
     bool darkTheme = MediaQuery.of(context).platformBrightness == Brightness.dark;
@@ -82,7 +60,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             SizedBox(height: 20),
             EditUserInfoRow(
-              title: context.read<AuthGateCubit>().userModelCurrentInfo!.name!,
+              title: context.read<LoadCurrentUserInfoCubit>().userModelCurrentInfo!.name!,
               darkTheme: darkTheme,
               onPressed: () => editDialogAlert(
                 context: context,
@@ -95,7 +73,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Navigator.pop(context);
                 },
                 updateButton: () {
-                  context.read<AuthGateCubit>().userModelCurrentInfo!.name =
+                  context.read<LoadCurrentUserInfoCubit>().userModelCurrentInfo!.name =
                       nameTextEditingController.text.trim();
                   userRef
                       .child(FirebaseAuth.instance.currentUser!.uid)
@@ -107,7 +85,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             EditUserInfoRow(
-              title: context.read<AuthGateCubit>().userModelCurrentInfo!.address!,
+              title: context.read<LoadCurrentUserInfoCubit>().userModelCurrentInfo!.address!,
               darkTheme: darkTheme,
               onPressed: () => editDialogAlert(
                 context: context,
@@ -120,7 +98,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Navigator.pop(context);
                 },
                 updateButton: () {
-                  context.read<AuthGateCubit>().userModelCurrentInfo!.address =
+                  context.read<LoadCurrentUserInfoCubit>().userModelCurrentInfo!.address =
                       addressTextEditingController.text.trim();
                   userRef
                       .child(FirebaseAuth.instance.currentUser!.uid)
@@ -132,7 +110,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             EditUserInfoRow(
-              title: context.read<AuthGateCubit>().userModelCurrentInfo!.phoneNumber!,
+              title: context.read<LoadCurrentUserInfoCubit>().userModelCurrentInfo!.phoneNumber!,
               darkTheme: darkTheme,
               onPressed: () => editDialogAlert(
                 context: context,
@@ -145,7 +123,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Navigator.pop(context);
                 },
                 updateButton: () {
-                  context.read<AuthGateCubit>().userModelCurrentInfo!.phoneNumber =
+                  context.read<LoadCurrentUserInfoCubit>().userModelCurrentInfo!.phoneNumber =
                       phoneNumberTextEditingController.text.trim();
                   userRef
                       .child(FirebaseAuth.instance.currentUser!.uid)
@@ -159,7 +137,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             SizedBox(height: 8),
             Row(children: [
               Text(
-                context.read<AuthGateCubit>().userModelCurrentInfo!.email!,
+                context.read<LoadCurrentUserInfoCubit>().userModelCurrentInfo!.email!,
                 style: AppStyles.styleSemiBold16(darkTheme),
               )
             ])

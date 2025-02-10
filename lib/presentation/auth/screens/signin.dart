@@ -73,14 +73,16 @@ class _SignInState extends State<SignIn> {
                               obsecure: passwordVisible,
                               suffixIcon: passwordVisible
                                   ? IconButton(
-                                      focusColor: darkTheme ? DarkColors.background : LightColors.white,
+                                      focusColor:
+                                          darkTheme ? DarkColors.background : LightColors.textSecondary,
                                       onPressed: () {
                                         setState(() {
                                           passwordVisible = !passwordVisible;
                                         });
                                       },
                                       icon: Icon(Icons.visibility,
-                                          color: darkTheme ? DarkColors.background : LightColors.white),
+                                          color:
+                                              darkTheme ? DarkColors.background : LightColors.textSecondary),
                                     )
                                   : IconButton(
                                       onPressed: () {
@@ -89,7 +91,8 @@ class _SignInState extends State<SignIn> {
                                         });
                                       },
                                       icon: Icon(Icons.visibility_off_outlined,
-                                          color: darkTheme ? DarkColors.background : LightColors.white),
+                                          color:
+                                              darkTheme ? DarkColors.background : LightColors.textSecondary),
                                     ),
                               darkTheme: darkTheme,
                               controller: passwordController,

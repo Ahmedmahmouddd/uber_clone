@@ -5,9 +5,11 @@ import 'package:uber_clone/common/theme_provider/app_colors.dart';
 import 'package:uber_clone/common/theme_provider/app_styles.dart';
 import 'package:uber_clone/presentation/auth/bloc/sign_up_cubit/sign_up_cubit.dart';
 import 'package:uber_clone/presentation/auth/screens/signin.dart';
+import 'package:uber_clone/presentation/auth/screens/vehicle_info.dart';
 import 'package:uber_clone/presentation/auth/widgets/auth_button.dart';
 import 'package:uber_clone/presentation/auth/widgets/auth_text_field.dart';
 import 'package:uber_clone/presentation/auth/widgets/custom_snackbar.dart';
+import 'package:uber_clone/presentation/auth/widgets/dropdown_form_field.dart';
 import 'package:uber_clone/presentation/auth/widgets/intl_phone_field.dart';
 import 'package:uber_clone/presentation/home/screens/home.dart';
 
@@ -26,6 +28,8 @@ class _SignUpState extends State<SignUp> {
   final addressController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+  final userRoleController = TextEditingController();
+
   bool passwordVisible = true;
   bool confirmPasswordVisible = true;
 
@@ -83,6 +87,29 @@ class _SignUpState extends State<SignUp> {
                               },
                             ),
                             SizedBox(height: 10),
+                            AuthDropdownFormField(
+                              items: [
+                                DropdownMenuItem(
+                                    value: 'Rider',
+                                    child: Text('Rider', style: AppStyles.styleSemiBold16(darkTheme))),
+                                DropdownMenuItem(
+                                    value: 'Driver',
+                                    child: Text('Driver', style: AppStyles.styleSemiBold16(darkTheme))),
+                              ],
+                              hint: "Select Role",
+                              icon: Icons.person,
+                              darkTheme: darkTheme,
+                              onChanged: (value) {
+                                setState(() => userRoleController.text = value.toString());
+                              },
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Please select a role";
+                                }
+                                return null;
+                              },
+                            ),
+                            SizedBox(height: 10),
                             AuthTextFormField(
                               darkTheme: darkTheme,
                               controller: emailController,
@@ -125,24 +152,28 @@ class _SignUpState extends State<SignUp> {
                               obsecure: passwordVisible,
                               suffixIcon: passwordVisible
                                   ? IconButton(
-                                      focusColor: darkTheme ? DarkColors.background : LightColors.white,
+                                      focusColor:
+                                          darkTheme ? DarkColors.background : LightColors.textSecondary,
                                       onPressed: () {
                                         setState(() {
                                           passwordVisible = !passwordVisible;
                                         });
                                       },
                                       icon: Icon(Icons.visibility,
-                                          color: darkTheme ? DarkColors.background : LightColors.white),
+                                          color:
+                                              darkTheme ? DarkColors.background : LightColors.textSecondary),
                                     )
                                   : IconButton(
-                                      focusColor: darkTheme ? DarkColors.background : LightColors.white,
+                                      focusColor:
+                                          darkTheme ? DarkColors.background : LightColors.textSecondary,
                                       onPressed: () {
                                         setState(() {
                                           passwordVisible = !passwordVisible;
                                         });
                                       },
                                       icon: Icon(Icons.visibility_off_outlined,
-                                          color: darkTheme ? DarkColors.background : LightColors.white),
+                                          color:
+                                              darkTheme ? DarkColors.background : LightColors.textSecondary),
                                     ),
                               darkTheme: darkTheme,
                               controller: passwordController,
@@ -150,7 +181,7 @@ class _SignUpState extends State<SignUp> {
                               icon: Icons.password_rounded,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return "Please enter an password";
+                                  return "Please enter a password";
                                 }
                                 if (value.length < 8) {
                                   return "Password must be at least 8 characters long";
@@ -166,24 +197,28 @@ class _SignUpState extends State<SignUp> {
                               obsecure: confirmPasswordVisible,
                               suffixIcon: confirmPasswordVisible
                                   ? IconButton(
-                                      focusColor: darkTheme ? DarkColors.background : LightColors.white,
+                                      focusColor:
+                                          darkTheme ? DarkColors.background : LightColors.textSecondary,
                                       onPressed: () {
                                         setState(() {
                                           confirmPasswordVisible = !confirmPasswordVisible;
                                         });
                                       },
                                       icon: Icon(Icons.visibility,
-                                          color: darkTheme ? DarkColors.background : LightColors.white),
+                                          color:
+                                              darkTheme ? DarkColors.background : LightColors.textSecondary),
                                     )
                                   : IconButton(
-                                      focusColor: darkTheme ? DarkColors.background : LightColors.white,
+                                      focusColor:
+                                          darkTheme ? DarkColors.background : LightColors.textSecondary,
                                       onPressed: () {
                                         setState(() {
                                           confirmPasswordVisible = !confirmPasswordVisible;
                                         });
                                       },
                                       icon: Icon(Icons.visibility_off_outlined,
-                                          color: darkTheme ? DarkColors.background : LightColors.white),
+                                          color:
+                                              darkTheme ? DarkColors.background : LightColors.textSecondary),
                                     ),
                               darkTheme: darkTheme,
                               controller: confirmPasswordController,
@@ -214,16 +249,32 @@ class _SignUpState extends State<SignUp> {
                                 final bool isLoading = state is SignUpLoading;
                                 return AuthButton(
                                   loading: isLoading,
-                                  text: "Sign Up",
+                                  text: userRoleController.text == "Driver" ? "Continue" : "Sign Up",
                                   darkTheme: darkTheme,
                                   onPressed: () {
                                     if (signupKey.currentState!.validate()) {
-                                      BlocProvider.of<SignUpCubit>(context).signUp(
+                                      if (userRoleController.text == "Rider") {
+                                        BlocProvider.of<SignUpCubit>(context).signUp(
                                           email: emailController.text.trim(),
                                           password: passwordController.text.trim(),
                                           userName: nameController.text.trim(),
                                           address: addressController.text.trim(),
-                                          phone: phoneController.text.trim());
+                                          phone: phoneController.text.trim(),
+                                          role: userRoleController.text.trim(),
+                                        );
+                                      } else if (userRoleController.text == "Driver") {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => VehicleInfo(
+                                                    name: nameController.text,
+                                                    address: addressController.text,
+                                                    phone: phoneController.text,
+                                                    email: emailController.text,
+                                                    password: passwordController.text,
+                                                    confirmPassword: confirmPasswordController.text,
+                                                    userRole: userRoleController.text)));
+                                      }
                                     }
                                   },
                                 );

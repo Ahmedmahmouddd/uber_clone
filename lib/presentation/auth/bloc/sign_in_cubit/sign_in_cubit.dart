@@ -11,7 +11,7 @@ class SignInCubit extends Cubit<SignInState> {
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
       emit(SignInSuccess());
-    }on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-credential') {
         emit(SignInFailure(errMessage: "Wrong email or password provided."));
       }

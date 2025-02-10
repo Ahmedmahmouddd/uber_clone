@@ -21,7 +21,7 @@ class IntelPhoneField extends StatelessWidget {
         initialValue: "+20",
         controller: phoneController,
         dropdownTextStyle: AppStyles.styleSemiBold16(darkTheme),
-        dropdownIcon: Icon(Icons.arrow_drop_down,
+        dropdownIcon: Icon(Icons.keyboard_arrow_down_rounded,
             color: darkTheme ? DarkColors.textSecondary : LightColors.textSecondary),
         showCountryFlag: false,
         style: AppStyles.styleSemiBold16(darkTheme),

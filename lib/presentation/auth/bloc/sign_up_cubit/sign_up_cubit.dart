@@ -2,14 +2,24 @@ import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:meta/meta.dart';
 import 'package:firebase_database/firebase_database.dart';
-
 part 'sign_up_state.dart';
 
 class SignUpCubit extends Cubit<SignUpState> {
   SignUpCubit() : super(SignUpInitial());
 
-  Future<void> signUp({required String email, password, userName, address, phone}) async {
+  Future<void> signUp(
+      {required String email,
+      password,
+      userName,
+      address,
+      phone,
+      role,
+      vehicleModel,
+      vehicleColor,
+      vehicleNumber,
+      vehicleType}) async {
     emit(SignUpLoading());
+
     try {
       UserCredential auth =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
@@ -22,6 +32,11 @@ class SignUpCubit extends Cubit<SignUpState> {
           "email": email,
           "address": address,
           "phone": phone,
+          "role": role,
+          "vehicleModel": vehicleModel,
+          "vehicleColor": vehicleColor,
+          "vehicleNumber": vehicleNumber,
+          "vehicleType": vehicleType,
         };
 
         DatabaseReference userRef = FirebaseDatabase.instance.ref().child("users");
