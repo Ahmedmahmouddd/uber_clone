@@ -7,6 +7,7 @@ import 'package:uber_clone/presentation/auth/screens/signup.dart';
 import 'package:uber_clone/presentation/auth/widgets/auth_button.dart';
 import 'package:uber_clone/presentation/auth/widgets/auth_text_field.dart';
 import 'package:uber_clone/presentation/auth/widgets/custom_snackbar.dart';
+import 'package:uber_clone/presentation/home/screens/driver_home.dart';
 import 'package:uber_clone/presentation/home/screens/home.dart';
 
 class SignIn extends StatefulWidget {
@@ -108,10 +109,14 @@ class _SignInState extends State<SignIn> {
                             SizedBox(height: 30),
                             BlocConsumer<SignInCubit, SignInState>(
                               listener: (context, state) {
-                                if (state is SignInSuccess) {
-                                  showCustomSnackBar(context, "Sign in successful", darkTheme);
+                                if (state is SignInSuccessAsRider) {
+                                  showCustomSnackBar(context, "Sign in successful as rider", darkTheme);
                                   Navigator.pushReplacement(
                                       context, MaterialPageRoute(builder: (context) => Home()));
+                                } else if (state is SignInSuccessAsDriver) {
+                                  showCustomSnackBar(context, "Sign in successful as driver", darkTheme);
+                                  Navigator.pushReplacement(
+                                      context, MaterialPageRoute(builder: (context) => DriverHome()));
                                 } else if (state is SignInFailure) {
                                   showCustomSnackBar(context, state.errMessage, darkTheme);
                                 }

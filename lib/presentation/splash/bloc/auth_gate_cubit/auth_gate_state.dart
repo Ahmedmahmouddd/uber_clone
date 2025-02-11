@@ -5,7 +5,9 @@ sealed class AuthGateState {}
 
 final class AuthGateInitial extends AuthGateState {}
 
-final class AuthGateAuthenticated extends AuthGateState {}
+final class AuthGateAuthenticatedAsRider extends AuthGateState {}
+
+final class AuthGateAuthenticatedAsDriver extends AuthGateState {}
 
 final class AuthGateUnAuthenticated extends AuthGateState {}
 

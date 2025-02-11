@@ -5,7 +5,9 @@ sealed class SignInState {}
 
 final class SignInInitial extends SignInState {}
 
-final class SignInSuccess extends SignInState {}
+final class SignInSuccessAsRider extends SignInState {}
+
+final class SignInSuccessAsDriver extends SignInState {}
 
 final class SignInLoading extends SignInState {}
 
