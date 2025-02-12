@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uber_clone/common/theme_provider/app_colors.dart';
 import 'package:uber_clone/common/theme_provider/app_styles.dart';
 import 'package:uber_clone/presentation/auth/screens/signin.dart';
-import 'package:uber_clone/presentation/home/bloc/save_current_user_info_cubit/save_current_user_info_cubit.dart';
-import 'package:uber_clone/presentation/home/screens/profile_screen.dart';
+import 'package:uber_clone/presentation/rider_home/bloc/save_current_user_info_cubit/save_current_user_info_cubit.dart';
+import 'package:uber_clone/presentation/rider_home/screens/profile_screen.dart';
 
 class DrawerScreen extends StatelessWidget {
   const DrawerScreen({super.key, required this.darkTheme});

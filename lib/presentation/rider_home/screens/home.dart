@@ -7,20 +7,20 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geocoder2/geocoder2.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart' as loc;
+// import 'package:location/location.dart' as loc;
 import 'package:provider/provider.dart';
 import 'package:uber_clone/common/constants/constants.dart';
 import 'package:uber_clone/common/network/dio_client.dart';
 import 'package:uber_clone/common/theme_provider/app_colors.dart';
-import 'package:uber_clone/presentation/home/bloc/drop_off_cubit/drop_off_cubit.dart';
-import 'package:uber_clone/presentation/home/bloc/pickup&dropoff_location_cubit/pickup_location_cubit.dart';
-import 'package:uber_clone/presentation/home/bloc/save_current_user_info_cubit/save_current_user_info_cubit.dart';
-import 'package:uber_clone/presentation/home/models/direction_details_indo.dart';
-import 'package:uber_clone/presentation/home/models/directions_model.dart';
-import 'package:uber_clone/presentation/home/screens/drawer_screen.dart';
-import 'package:uber_clone/presentation/home/widgets/from_address_container.dart';
-import 'package:uber_clone/presentation/home/widgets/positioned_icon.dart';
-import 'package:uber_clone/presentation/home/widgets/to_address_container.dart';
+import 'package:uber_clone/presentation/rider_home/bloc/drop_off_cubit/drop_off_cubit.dart';
+import 'package:uber_clone/presentation/rider_home/bloc/pickup&dropoff_location_cubit/pickup_location_cubit.dart';
+import 'package:uber_clone/presentation/rider_home/bloc/save_current_user_info_cubit/save_current_user_info_cubit.dart';
+import 'package:uber_clone/presentation/rider_home/models/direction_details_indo_model.dart';
+import 'package:uber_clone/presentation/rider_home/models/location_model.dart';
+import 'package:uber_clone/presentation/rider_home/screens/drawer_screen.dart';
+import 'package:uber_clone/presentation/rider_home/widgets/from_address_container.dart';
+import 'package:uber_clone/presentation/rider_home/widgets/positioned_icon.dart';
+import 'package:uber_clone/presentation/rider_home/widgets/to_address_container.dart';
 import 'package:uber_clone/presentation/search/screens/search_places_screen.dart';
 import 'package:uber_clone/presentation/search/widgets/progress_dialog.dart';
 
@@ -33,16 +33,16 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   LatLng? pickLocation;
-  loc.Location location = loc.Location();
-  String? address;
+  // loc.Location location = loc.Location();
+  // String? address;
   GoogleMapController? newgoogleMapController;
   final Completer<GoogleMapController> googleMapController = Completer<GoogleMapController>();
   static const CameraPosition kGooglePlex = CameraPosition(target: LatLng(30.0444, 31.2357), zoom: 14.4746);
   Position? userCurrentPosition;
-  bool openNavigationDrawer = true;
+  // bool openNavigationDrawer = true;
   List<LatLng> pLineCoordinatedList = [];
   Set<Polyline> polylineSet = {};
-  var geolocation = Geolocator();
+  // var geolocation = Geolocator();
   final Set<Marker> markerSet = {};
   final Set<Circle> circleSet = {};
   // BitmapDescriptor? activeNearbyIcon;
@@ -50,8 +50,9 @@ class _HomeState extends State<Home> {
   // String userEmail = "";
   DirectionDetailsInfo? tripDirectionDetailsInfo;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
-  void initState()  {
+  void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _checkLocationPermission());
     loadCurrentUserData();
@@ -92,13 +93,12 @@ class _HomeState extends State<Home> {
 
       final latLngPosition = LatLng(position.latitude, position.longitude);
 
-      newgoogleMapController!
-          .animateCamera(CameraUpdate.newCameraPosition(CameraPosition(target: latLngPosition, zoom: 15)));
+      newgoogleMapController!.animateCamera(
+        CameraUpdate.newCameraPosition(CameraPosition(target: latLngPosition, zoom: 15)),
+      );
     } catch (e) {
       log("Error getting user's current location: $e");
     }
-    // initializeGeoFireListener();
-    // readTripsKeyForOnlineUser(context);
   }
 
   //3
@@ -279,7 +279,7 @@ class _HomeState extends State<Home> {
                       zoomControlsEnabled: false,
                       initialCameraPosition: kGooglePlex,
                       markers: markerSet,
-                      circles: circleSet,
+                      // circles: circleSet,
                       onMapCreated: (GoogleMapController controller) {
                         googleMapController.complete(controller);
                         newgoogleMapController = controller;

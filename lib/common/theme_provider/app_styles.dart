@@ -29,6 +29,15 @@ abstract class AppStyles {
     );
   }
 
+  static TextStyle styleSemiBold12Light() {
+    return TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.w600,
+      fontFamily: 'Poppins',
+      color: DarkColors.textPrimary,
+    );
+  }
+
   static TextStyle styleSemiBold16(bool darkTheme) {
     return TextStyle(
       fontSize: 16,

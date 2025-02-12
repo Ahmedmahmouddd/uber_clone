@@ -11,7 +11,7 @@ import 'package:uber_clone/presentation/auth/widgets/auth_text_field.dart';
 import 'package:uber_clone/presentation/auth/widgets/custom_snackbar.dart';
 import 'package:uber_clone/presentation/auth/widgets/dropdown_form_field.dart';
 import 'package:uber_clone/presentation/auth/widgets/intl_phone_field.dart';
-import 'package:uber_clone/presentation/home/screens/home.dart';
+import 'package:uber_clone/presentation/rider_home/screens/home.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});

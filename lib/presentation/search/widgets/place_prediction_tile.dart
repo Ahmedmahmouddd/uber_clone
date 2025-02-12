@@ -5,8 +5,8 @@ import 'package:uber_clone/common/constants/constants.dart';
 import 'package:uber_clone/common/network/dio_client.dart';
 import 'package:uber_clone/common/theme_provider/app_colors.dart';
 import 'package:uber_clone/common/theme_provider/app_styles.dart';
-import 'package:uber_clone/presentation/home/bloc/drop_off_cubit/drop_off_cubit.dart';
-import 'package:uber_clone/presentation/home/models/directions_model.dart';
+import 'package:uber_clone/presentation/rider_home/bloc/drop_off_cubit/drop_off_cubit.dart';
+import 'package:uber_clone/presentation/rider_home/models/location_model.dart';
 import 'package:uber_clone/presentation/search/models/predicted_places_model.dart';
 import 'package:uber_clone/presentation/search/widgets/progress_dialog.dart';
 

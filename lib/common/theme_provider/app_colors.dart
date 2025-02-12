@@ -13,7 +13,7 @@ class DarkColors {
   static const Color primary = Color(0xFF007AFF); // Same electric blue for dark mode
   static const Color black = Color.fromARGB(255, 0, 0, 0); // Dark gray (almost black, but comfortable)
   static const Color background = Color(0xFF2B2B2B); // Slightly lighter dark gray
-  static const Color accent = Color.fromARGB(255, 71, 71, 71); // Mid-gray for accents or subtle highlights
+  static const Color accent = Color.fromARGB(255, 85, 85, 85); // Mid-gray for accents or subtle highlights
   static const Color textPrimary =
       Color.fromARGB(255, 206, 206, 206); // Light gray (off-white for readability)
   static const Color textSecondary = Color.fromARGB(255, 169, 169, 169); // Softer gray for secondary text

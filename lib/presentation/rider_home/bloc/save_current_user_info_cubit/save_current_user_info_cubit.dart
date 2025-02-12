@@ -18,6 +18,9 @@ class LoadCurrentUserInfoCubit extends Cubit<LoadCurrentUserInfoState> {
         DataSnapshot snap = await userRef.once().then((event) => event.snapshot);
         if (snap.value != null) {
           userModelCurrentInfo = UserModel.fromsnapshot(snap);
+          LoadCurrentUserInfoSuccess(userModelCurrentInfo!);
+        } else {
+          emit(LoadCurrentUserInfoError("User data not found"));
         }
       }
     } catch (e) {

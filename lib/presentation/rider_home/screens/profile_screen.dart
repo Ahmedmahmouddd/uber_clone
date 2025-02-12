@@ -7,9 +7,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uber_clone/common/theme_provider/app_colors.dart';
 import 'package:uber_clone/common/theme_provider/app_styles.dart';
 import 'package:uber_clone/presentation/auth/widgets/custom_snackbar.dart';
-import 'package:uber_clone/presentation/home/bloc/save_current_user_info_cubit/save_current_user_info_cubit.dart';
-import 'package:uber_clone/presentation/home/widgets/edit_dialog_alet.dart';
-import 'package:uber_clone/presentation/home/widgets/edit_user_info_row.dart';
+import 'package:uber_clone/presentation/rider_home/bloc/save_current_user_info_cubit/save_current_user_info_cubit.dart';
+import 'package:uber_clone/presentation/rider_home/widgets/edit_dialog_alet.dart';
+import 'package:uber_clone/presentation/rider_home/widgets/edit_user_info_row.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});

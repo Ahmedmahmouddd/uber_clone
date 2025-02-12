@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uber_clone/common/theme_provider/app_colors.dart';
-import 'package:uber_clone/presentation/home/bloc/drop_off_cubit/drop_off_cubit.dart';
+import 'package:uber_clone/presentation/rider_home/bloc/drop_off_cubit/drop_off_cubit.dart';
 
 class ToAddressContainer extends StatelessWidget {
   const ToAddressContainer({

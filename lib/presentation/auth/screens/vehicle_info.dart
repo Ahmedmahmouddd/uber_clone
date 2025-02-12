@@ -9,7 +9,7 @@ import 'package:uber_clone/presentation/auth/widgets/auth_button.dart';
 import 'package:uber_clone/presentation/auth/widgets/auth_text_field.dart';
 import 'package:uber_clone/presentation/auth/widgets/custom_snackbar.dart';
 import 'package:uber_clone/presentation/auth/widgets/dropdown_form_field.dart';
-import 'package:uber_clone/presentation/home/screens/driver_home.dart';
+import 'package:uber_clone/presentation/driver_home/screens/driver_home.dart';
 
 class VehicleInfo extends StatefulWidget {
   const VehicleInfo(
